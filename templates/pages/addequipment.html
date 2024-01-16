@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %} {% block title %} Add Record {% endblock %}
+
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+<style>
+    .alert-error {
+        /* Custom styling for error messages */
+        background-color: #ffdddd;
+        border-color: #f44336;
+        color: #f44336;
+    }
+</style>
+{% endblock extrastyle %} {% block content %}
+<!-- [ Main Content ] start -->
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add Equipment</h5>
+            </div>
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="card-block">
+                <form action="{% url 'add_equipment' %}" method="post" id="FormId">
+                    {% csrf_token %}
+                    <h6 class="mb-4">Equipment Information</h6>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="asset_tag_number">Asset Tag Number</label>
+                                <input type="text" class="form-control" id="asset_tag_number" name="asset_tag_number" placeholder="Asset Tag Number" value="{{ form_data.asset_tag_number|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="equipment_name">Equipment Name</label>
+                                <input type="text" class="form-control" id="equipment_name" name="equipment_name" placeholder="Equipment Name" value="{{ form_data.equipment_name|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="serial_number">Serial Number</label>
+                                <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number" value="{{ form_data.serial_number|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="install_date">Installation Date</label>
+                                <input type="date" class="form-control" id="install_date" name="install_date" value="{{ form_data.install_date|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-primary">Add Equipment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block extra_js %}
+<script>
+    window.onload = function() {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else {}
+    };
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else {}
+    });
+</script>
+{% endblock extra_js %}

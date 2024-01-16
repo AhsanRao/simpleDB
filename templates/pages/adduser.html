@@ -1,0 +1,161 @@
+{% extends "layouts/base.html" %}{% load static %} {% block title %} Add Record {% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+<style>
+    .alert-error {
+        /* Custom styling for error messages */
+        background-color: #ffdddd;
+        border-color: #f44336;
+        color: #f44336;
+    }
+</style>
+{% endblock extrastyle %} {% block content %}
+
+<!-- [ Main Content ] start -->
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add User</h5>
+            </div>
+            {% if messages %}
+            <div>
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="card-block">
+                <form action="{% url 'add_user' %}" method="post" id="FormId">
+                    {% csrf_token %}
+                    <h6 class="mb-4">Personal Information</h6>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="{{ form_data.first_name|default_if_none:'' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="{{ form_data.last_name|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender">
+                                                            <option value="M" {% if form_data.gender == 'Male' %}selected{% endif %}>Male</option>
+                                                            <option value="F" {% if form_data.gender == 'Female' %}selected{% endif %}>Female</option>
+                                                            <option value="O" {% if form_data.gender == 'Other' %}selected{% endif %}>Other</option>
+                                                        </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="email">Email address</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ form_data.email|default_if_none:'' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select class="form-control" id="role" name="role">
+                                                            <option value="Administrator" {% if form_data.role == 'Administrator' %}selected{% endif %}>Administrator</option>
+                                                            <option value="Client" {% if form_data.role == 'Client' %}selected{% endif %}>Client</option>
+                                                            <option value="Executive" {% if form_data.role == 'Executive' %}selected{% endif %}>Executive</option>
+                                                            <option value="Legal" {% if form_data.role == 'Legal' %}selected{% endif %}>Legal</option>
+                                                            <option value="Accountant" {% if form_data.role == 'Accountant' %}selected{% endif %}>Accountant</option>
+
+                                                        </select>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h6 class="mb-4">Address Details</h6>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="street">Street</label>
+                                <input type="text" class="form-control" id="street" name="street" placeholder="Street Address" value="{{ form_data.street|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" class="form-control" id="city" name="city" placeholder="City" value="{{ form_data.city|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" class="form-control" id="state" name="state" placeholder="State" value="{{ form_data.state|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="zipcode">Zipcode</label>
+                                <input type="number" class="form-control" id="zipcode" name="zipcode" placeholder="Zipcode" value="{{ form_data.zipcode|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" class="form-control" id="country" name="country" placeholder="Country" value="{{ form_data.country|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <h6 class="mb-4">Phone Numbers</h6>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="home_phone">Home Phone Number</label>
+                                <input type="text" class="form-control" id="home_phone" name="home_phone" placeholder="Home Phone Number" value="{{ form_data.home_phone|default_if_none:'' }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="business_phone">Business Phone Number</label>
+                                <input type="text" class="form-control" id="business_phone" name="business_phone" placeholder="Business Phone Number" value="{{ form_data.business_phone|default_if_none:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- [ Main Content ] end -->
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block extra_js %}
+<script>
+    window.onload = function() {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else {}
+    };
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else {}
+    });
+</script>
+{% endblock extra_js %}
