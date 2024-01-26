@@ -5,94 +5,128 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('home', '0001_initial'),
+        ("home", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Contract',
+            name="Contract",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('installation_date', models.DateField()),
-                ('monthly_charges', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('billing_date', models.DateField()),
-                ('renewal_date', models.DateField()),
-                ('role', models.CharField(max_length=255)),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("installation_date", models.DateField()),
+                (
+                    "monthly_charges",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                ("billing_date", models.DateField()),
+                ("renewal_date", models.DateField()),
+                ("role", models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'contracts',
+                "db_table": "contracts",
             },
         ),
         migrations.CreateModel(
-            name='ContractEquipment',
+            name="ContractEquipment",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('contract', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='home.contract')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "contract",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="home.contract"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'contract_equipments',
+                "db_table": "contract_equipments",
             },
         ),
         migrations.CreateModel(
-            name='Person',
+            name="Person",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('first_name', models.CharField(max_length=255)),
-                ('last_name', models.CharField(max_length=255)),
-                ('gender', models.CharField(max_length=1)),
-                ('email', models.EmailField(max_length=255, unique=True)),
-                ('role', models.CharField(max_length=255)),
-                ('street', models.CharField(max_length=255)),
-                ('city', models.CharField(max_length=255)),
-                ('state', models.CharField(max_length=255)),
-                ('zipcode', models.CharField(max_length=255)),
-                ('country', models.CharField(max_length=255)),
-                ('home_phone_number', models.CharField(blank=True, max_length=255, null=True)),
-                ('business_phone_number', models.CharField(blank=True, max_length=255, null=True)),
-                ('contract_equipments', models.ManyToManyField(through='home.ContractEquipment', to='home.person')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("first_name", models.CharField(max_length=255)),
+                ("last_name", models.CharField(max_length=255)),
+                ("gender", models.CharField(max_length=1)),
+                ("email", models.EmailField(max_length=255, unique=True)),
+                ("role", models.CharField(max_length=255)),
+                ("street", models.CharField(max_length=255)),
+                ("city", models.CharField(max_length=255)),
+                ("state", models.CharField(max_length=255)),
+                ("zipcode", models.CharField(max_length=255)),
+                ("country", models.CharField(max_length=255)),
+                (
+                    "home_phone_number",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "business_phone_number",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
+                (
+                    "contract_equipments",
+                    models.ManyToManyField(
+                        through="home.ContractEquipment", to="home.person"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'persons',
+                "db_table": "persons",
             },
         ),
         migrations.CreateModel(
-            name='Equipment',
+            name="Equipment",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('asset_tag_number', models.CharField(max_length=255, unique=True)),
-                ('equipment_name', models.CharField(max_length=255)),
-                ('serial_number', models.CharField(max_length=255, unique=True)),
-                ('install_date', models.DateField()),
-                ('contract_equipments', models.ManyToManyField(through='home.ContractEquipment', to='home.contract')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("asset_tag_number", models.CharField(max_length=255, unique=True)),
+                ("equipment_name", models.CharField(max_length=255)),
+                ("serial_number", models.CharField(max_length=255, unique=True)),
+                ("install_date", models.DateField()),
+                (
+                    "contract_equipments",
+                    models.ManyToManyField(
+                        through="home.ContractEquipment", to="home.contract"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'equipments',
+                "db_table": "equipments",
             },
         ),
         migrations.AddField(
-            model_name='contractequipment',
-            name='equipment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='home.equipment'),
+            model_name="contractequipment",
+            name="equipment",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="home.equipment"
+            ),
         ),
         migrations.AddField(
-            model_name='contractequipment',
-            name='person',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='home.person'),
+            model_name="contractequipment",
+            name="person",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="home.person",
+            ),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='contract_equipments',
-            field=models.ManyToManyField(through='home.ContractEquipment', to='home.equipment'),
+            model_name="contract",
+            name="contract_equipments",
+            field=models.ManyToManyField(
+                through="home.ContractEquipment", to="home.equipment"
+            ),
         ),
         migrations.AddField(
-            model_name='contract',
-            name='person',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='home.person'),
+            model_name="contract",
+            name="person",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="home.person"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='contractequipment',
-            unique_together={('contract', 'equipment')},
+            name="contractequipment",
+            unique_together={("contract", "equipment")},
         ),
     ]

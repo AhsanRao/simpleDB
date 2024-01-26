@@ -1,8 +1,9 @@
-{% extends "layouts/base.html" %} {% load static %} {% block title %} Add Record {% endblock %}
-
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}Add Record{% endblock %}
 <!-- Specific CSS goes HERE -->
 {% block extrastyle %}
-<style>
+    <style>
     .alert-error {
         /* Custom styling for error messages */
         background-color: #ffdddd;
@@ -42,202 +43,275 @@
         border-color: #ebccd1;
         color: #a94442;
     }
-</style>
-{% endblock extrastyle %} {% block content %}
-
-<!-- [ Main Content ] start -->
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>Create Contract</h5>
-
-            </div>
-            {% if messages %}
-            <div>
-                {% for message in messages %}
-                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
-                    {{ message }}
+    </style>
+{% endblock extrastyle %}
+{% block content %}
+    <!-- [ Main Content ] start -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Create Contract</h5>
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <div class="card-block">
-                <form action="" method="post" id="FormId">
-                    {% csrf_token %}
-
-                    <h6 class="mb-4">Client Information</h6>
-
-                    <div class="row mb-3">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="email">Client's Email</label>
-                                <div class="input-group mb-3">
-                                    <input type="email" class="form-control" placeholder="Enter user's email" id="email" name="email" aria-label="Enter user's email" value="{{ form_data.email|default_if_none:'' }}" aria-describedby="basic-addon2" required>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="button" onclick="searchUser()">Find Client</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        {% endfor %}
                     </div>
-
-                    <div id="user-details" class="row" style="display:none;">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Client Details</h6>
-                                    <br>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <p><b>Full Name:</b> <span id="full-name"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Gender:</b> <span id="gender"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Home Phone:</b> <span id="home-phone"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Business Phone:</b> <span id="business-phone"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Zipcode:</b> <span id="zipcode"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Role:</b> <span id="role"></span></p>
-                                        </div>
-                                        <div class="col-12">
-                                            <p><b>Address:</b> <span id="address"></span></p>
+                {% endif %}
+                <div class="card-block">
+                    <form action="" method="post" id="FormId">
+                        {% csrf_token %}
+                        <h6 class="mb-4">Client Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Client's Email</label>
+                                    <div class="input-group mb-3">
+                                        <input type="email"
+                                               class="form-control"
+                                               placeholder="Enter user's email"
+                                               id="email"
+                                               name="email"
+                                               aria-label="Enter user's email"
+                                               value="{{ form_data.email|default_if_none:'' }}"
+                                               aria-describedby="basic-addon2"
+                                               required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchUser()">Find Client</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <br>
-                    <h6 class="mb-4">Equipment Details</h6>
-                    <div class="row mb-3">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="asset_tag_number">Equipment's Asset Tag Number</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" id="asset_tag_number" name="asset_tag_number" placeholder="Enter asset tag number" value="{{ form_data.asset_tag_number|default_if_none:'' }}" aria-label="Enter asset tag number" aria-describedby="basic-addon2"
-                                        required>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="button" onclick="searchEquipment()">Find Equipment</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="equipment-details" class="card" style="display:none;">
-                        <div class="card-body">
-                            <h6 class="card-title">Equipment Details</h6>
-                            <p>Equipment Name: <span id="equipment-name"></span></p>
-                            <p>Serial Number: <span id="serial-number"></span></p>
-                            <p>Installation Date: <span id="install-date"></span></p>
-                        </div>
-                    </div>
-
-                    <br>
-                    <h6 class="mb-4">Sales Executive Information</h6>
-                    <div class="row mb-3">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="email">Sale Executive's Email</label>
-                                <div class="input-group mb-3">
-                                    <input type="email" class="form-control" id="sale_email" name="sale_email" placeholder="Enter sale's email" value="{{ form_data.sale_email|default_if_none:'' }}" required aria-label="Enter sale's email" aria-describedby="basic-addon2" required>
-                                    <div class="input-group-append">
-                                        <button class="btn btn-primary" type="button" onclick="searchSales()">Find Executive</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="sale-details" class="row" style="display:none;">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-title">Sales Executive Details</h6>
-                                    <br>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <p><b>Full Name:</b> <span id="sfull-name"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Gender:</b> <span id="sgender"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Home Phone:</b> <span id="shome-phone"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Business Phone:</b> <span id="sbusiness-phone"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Zipcode:</b> <span id="szipcode"></span></p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p><b>Role:</b> <span id="srole"></span></p>
-                                        </div>
-                                        <div class="col-12">
-                                            <p><b>Address:</b> <span id="saddress"></span></p>
+                        <div id="user-details" class="row" style="display:none;">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Client Details</h6>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Full Name:</b> <span id="full-name"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Gender:</b> <span id="gender"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Home Phone:</b> <span id="home-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Business Phone:</b> <span id="business-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Zipcode:</b> <span id="zipcode"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Role:</b> <span id="role"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-12">
+                                                <p>
+                                                    <b>Address:</b> <span id="address"></span>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <br>
-                    <h6 class="mb-4">Contract Details</h6>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="installation_date">Installation Date</label>
-                                <input type="date" class="form-control" id="installation_date" name="installation_date" placeholder="Installation Date" value="{{ form_data.installation_date|default_if_none:'' }}" required>
+                        <br>
+                        <h6 class="mb-4">Equipment Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="asset_tag_number">Equipment's Asset Tag Number</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text"
+                                               class="form-control"
+                                               id="asset_tag_number"
+                                               name="asset_tag_number"
+                                               placeholder="Enter asset tag number"
+                                               value="{{ form_data.asset_tag_number|default_if_none:'' }}"
+                                               aria-label="Enter asset tag number"
+                                               aria-describedby="basic-addon2"
+                                               required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchEquipment()">Find Equipment</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="monthly_charges">Monthly Charges</label>
-                                <input type="number" class="form-control" id="monthly_charges" name="monthly_charges" placeholder="Monthly Charges" value="{{ form_data.monthly_charges|default_if_none:'' }}" step="0.01" required>
+                        <div id="equipment-details" class="card" style="display:none;">
+                            <div class="card-body">
+                                <h6 class="card-title">Equipment Details</h6>
+                                <p>
+                                    Equipment Name: <span id="equipment-name"></span>
+                                </p>
+                                <p>
+                                    Serial Number: <span id="serial-number"></span>
+                                </p>
+                                <p>
+                                    Installation Date: <span id="install-date"></span>
+                                </p>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="billing_date">Billing Date</label>
-                                <input type="date" class="form-control" id="billing_date" name="billing_date" placeholder="Billing Date" value="{{ form_data.billing_date|default_if_none:'' }}" required>
+                        <br>
+                        <h6 class="mb-4">Sales Executive Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Sale Executive's Email</label>
+                                    <div class="input-group mb-3">
+                                        <input type="email"
+                                               class="form-control"
+                                               id="sale_email"
+                                               name="sale_email"
+                                               placeholder="Enter sale's email"
+                                               value="{{ form_data.sale_email|default_if_none:'' }}"
+                                               required
+                                               aria-label="Enter sale's email"
+                                               aria-describedby="basic-addon2"
+                                               required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchSales()">Find Executive</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="renewal_date">Renewal Date</label>
-                                <input type="date" class="form-control" id="renewal_date" name="renewal_date" placeholder="Renewal Date" value="{{ form_data.renewal_date|default_if_none:'' }}" required>
+                        <div id="sale-details" class="row" style="display:none;">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Sales Executive Details</h6>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Full Name:</b> <span id="sfull-name"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Gender:</b> <span id="sgender"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Home Phone:</b> <span id="shome-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Business Phone:</b> <span id="sbusiness-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Zipcode:</b> <span id="szipcode"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Role:</b> <span id="srole"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-12">
+                                                <p>
+                                                    <b>Address:</b> <span id="saddress"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Initial Create Contract Button -->
-                    <button type="submit" id="initialButton" class="btn btn-primary">Create Contract</button>
-
-                    <!-- Submit Create Contract Button (hidden initially) -->
-                    <button type="submit" id="submitButton" class="btn btn-primary" style="display:none;">Create Contract</button>
-                </form>
+                        <br>
+                        <h6 class="mb-4">Contract Details</h6>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="installation_date">Installation Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="installation_date"
+                                           name="installation_date"
+                                           placeholder="Installation Date"
+                                           value="{{ form_data.installation_date|default_if_none:'' }}"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="monthly_charges">Monthly Charges</label>
+                                    <input type="number"
+                                           class="form-control"
+                                           id="monthly_charges"
+                                           name="monthly_charges"
+                                           placeholder="Monthly Charges"
+                                           value="{{ form_data.monthly_charges|default_if_none:'' }}"
+                                           step="0.01"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="billing_date">Billing Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="billing_date"
+                                           name="billing_date"
+                                           placeholder="Billing Date"
+                                           value="{{ form_data.billing_date|default_if_none:'' }}"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="renewal_date">Renewal Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="renewal_date"
+                                           name="renewal_date"
+                                           placeholder="Renewal Date"
+                                           value="{{ form_data.renewal_date|default_if_none:'' }}"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Initial Create Contract Button -->
+                        <button type="submit" id="initialButton" class="btn btn-primary">Create Contract</button>
+                        <!-- Submit Create Contract Button (hidden initially) -->
+                        <button type="submit"
+                                id="submitButton"
+                                class="btn btn-primary"
+                                style="display:none">Create Contract</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- [ Main Content ] end -->
+    <!-- [ Main Content ] end -->
 {% endblock content %}
-
 <!-- Specific Page JS goes HERE  -->
 {% block extra_js %}
-<script>
+    <script>
     window.onload = function() {
         var form = document.getElementById("FormId");
         if (form) {
@@ -391,5 +465,5 @@
             setTimeout(() => newMsg.remove(), 600);
         }, 5000);
     }
-</script>
+    </script>
 {% endblock extra_js %}

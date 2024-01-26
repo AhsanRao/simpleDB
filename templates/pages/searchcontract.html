@@ -130,6 +130,11 @@
     .desc {
         cursor: pointer;
     }
+
+    .action-icon {
+        cursor: pointer;
+        margin: 0 5px;
+    }
 </style>
 {% endblock extrastyle %} {% block content %}
 
@@ -181,121 +186,91 @@
                                     <tr>
                                         <th>
                                             #
-                                            <span class="sort-arrows" data-column="id">
-                                                                    <span class="asc" onclick="sortTable('id', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('id', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(0, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(0, 'desc')" title="Sort Descending">▼</span>
                                         </th>
                                         <th>
                                             Full Name
-                                            <span class="sort-arrows" data-column="name">
-                                                                    <span class="asc" onclick="sortTable('name', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('name', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(1, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(1, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Email
-                                            <span class="sort-arrows" data-column="email">
-                                                                    <span class="asc" onclick="sortTable('email', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('email', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(2, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(2, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             PhoneNumber
-                                            <span class="sort-arrows" data-column="phone">
-                                                                    <span class="asc" onclick="sortTable('phone', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('phone', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(3, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(3, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Address
-                                            <span class="sort-arrows" data-column="address">
-                                                                    <span class="asc" onclick="sortTable('address', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('address', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(4, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(4, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Asset Tag Number
-                                            <span class="sort-arrows" data-column="tag">
-                                                                    <span class="asc" onclick="sortTable('tag', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('tag', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(5, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(5, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Serial Number
-                                            <span class="sort-arrows" data-column="serial">
-                                                                    <span class="asc" onclick="sortTable('serial', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('serial', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(6, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(6, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Equipment Name
-                                            <span class="sort-arrows" data-column="eqname">
-                                                                    <span class="asc" onclick="sortTable('eqname', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('eqname', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(7, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(7, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Install Date
-                                            <span class="sort-arrows" data-column="install">
-                                                                    <span class="asc" onclick="sortTable('install', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('install', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(8, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(8, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Monthly Charges
-                                            <span class="sort-arrows" data-column="charges">
-                                                                    <span class="asc" onclick="sortTable('charges', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('charges', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(9, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(9, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Billing Date
-                                            <span class="sort-arrows" data-column="billing">
-                                                                    <span class="asc" onclick="sortTable('billing', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('billing', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(10, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(10, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Renewal Date
-                                            <span class="sort-arrows" data-column="renew">
-                                                                    <span class="asc" onclick="sortTable('renew', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('renew', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(11, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(11, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Sales Person
-                                            <span class="sort-arrows" data-column="salename">
-                                                                    <span class="asc" onclick="sortTable('salename', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('salename', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(12, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(12, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             ID
-                                            <span class="sort-arrows" data-column="saleid">
-                                                                    <span class="asc" onclick="sortTable('saleid', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('saleid', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(13, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(13, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                         <th>
                                             Role
-                                            <span class="sort-arrows" data-column="role">
-                                                                    <span class="asc" onclick="sortTable('role', 'asc')" title="Sort Ascending">▲</span>
-                                            <span class="desc" onclick="sortTable('role', 'desc')" title="Sort Descending">▼</span>
-                                            </span>
+                                            <span class="asc" onclick="sortTable(14, 'asc')" title="Sort Ascending">▲</span>
+                                            <span class="desc" onclick="sortTable(14, 'desc')" title="Sort Descending">▼</span>
                                         </th>
 
                                     </tr>
@@ -344,11 +319,14 @@
                                         </td>
 
                                         <!-- Sales Person ID and Role -->
-                                        <td class="description-cell" data-description="ID: {{ contract.person.id }}||Name: {{ contract.person.first_name }} {{ contract.person.last_name }}||Email: {{ contract.person.email }}||Phone: {{ contract.person.home_phone_number }} / {{ contract.person.business_phone_number }} ||Role: {{ contract.person.role }}">
+                                        <td class="description-cell" style="cursor:pointer; color:cornflowerblue;" data-description="ID: {{ contract.person.id }}||Name: {{ contract.person.first_name }} {{ contract.person.last_name }}||Email: {{ contract.person.email }}||Phone: {{ contract.person.home_phone_number }} / {{ contract.person.business_phone_number }} ||Role: {{ contract.person.role }}">
                                             {{ contract.person.id }}
                                         </td>
                                         <td>{{ contract.person.role }}</td>
                                         <td>{{ contract.person.address }}</td>
+                                        <td>
+                                            <span onclick="deleteRow('{{ contract.id }}', this)" class="action-icon delete-icon">🗑️</span>
+                                        </td>
                                     </tr>
                                     {% endfor %} {% empty %}
                                     <tr>
@@ -506,16 +484,83 @@
     }
 
     function sortTable(column, direction) {
-        // This function will send a request to the Flask backend
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.querySelector(".table-hover"); // Adjust the selector as needed
+        switching = true;
 
-        const url = new URL(window.location);
-        url.searchParams.set('sort_column', column);
-        url.searchParams.set('sort_direction', direction);
-        window.location.href = url.toString();
+        // Continue until no switching has been done
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            // Loop through all table rows (except the headers)
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+
+                // Get the two elements to compare
+                x = rows[i].getElementsByTagName("TD")[column];
+                y = rows[i + 1].getElementsByTagName("TD")[column];
+
+                // Check if the two rows should switch place, based on the direction
+                if (direction === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                } else if (direction === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                // If a switch has been marked, make the switch and mark the switch as done
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
     }
 
+
     function clearSearch() {
-        window.location.href = "{% url 'search_contract' %}";
+        window.location.href = "{% url 'search_equipment' %}";
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function deleteRow(itemId, element) {
+        console.log("deleteRo", itemId);
+        if (confirm("Are you sure you want to delete this item?")) {
+            // AJAX call to delete the contract
+            fetch(`/delete-contract/${itemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken // Include CSRF token in the request header
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row from the table
+                        var row = element.closest('tr');
+                        row.parentNode.removeChild(row);
+                    } else {
+                        alert("Error: Could not delete the contract");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
     }
 </script>
 {% endblock extra_js %}

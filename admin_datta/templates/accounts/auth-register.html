@@ -1,0 +1,37 @@
+{% extends 'layouts/base-auth.html' %} {% load static %} {% block content %}
+
+<div class="auth-wrapper">
+    <div class="auth-content">
+        <div class="auth-bg">
+            <span class="r"></span>
+            <span class="r s"></span>
+            <span class="r s"></span>
+            <span class="r"></span>
+        </div>
+        <div class="card">
+            <div method="post" class="card-body text-center">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <i class="feather icon-user-plus auth-icon"></i>
+                </div>
+                <h3 class="mb-4">Sign up</h3>
+                <!-- Link for registering as a business -->
+                <a href="{% url 'register-owner' %}" class="btn btn-primary btn-block mb-2 text-white">Register as Business Owner</a>
+
+                <!-- Link for joining a business -->
+                <a href="{% url 'register-staff' %}" class="btn btn-success btn-block mb-2 text-white">Register as Staff</a>
+                <br>
+                <p class="mb-0 text-muted">Already have an account? <a href="{% url 'login' %}"> Log in</a></p>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<label class="d-none">
+        <i class="icon feather icon-sun" id="theme-indicator"></i>
+        <input type="checkbox" id="theme-switch" class="d-none">
+    </label> {% endblock content %}

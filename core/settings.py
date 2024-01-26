@@ -25,23 +25,31 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
-    SECRET_KEY = ''.join(random.choice( string.ascii_lowercase  ) for i in range( 32 ))
+    SECRET_KEY = "".join(random.choice(string.ascii_lowercase) for i in range(32))
 
 # Render Deployment Code
-DEBUG = 'RENDER' not in os.environ
+DEBUG = "RENDER" not in os.environ
 
 # HOSTs List
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','*']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "*"]
+
+AUTH_USER_MODEL = "home.User"
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085', 'http://127.0.0.1:8000', 'http://127.0.0.1:5085']
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://localhost:5085",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:5085",
+    "https://8805-110-38-69-85.ngrok-free.app",
+]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:    
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
@@ -55,16 +63,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "home",
-
     # Tooling Dynamic_DT
-    'django_dyn_dt',             # <-- NEW: Dynamic_DT
-
+    "django_dyn_dt",  # <-- NEW: Dynamic_DT
     # Tooling API-GEN
-    'django_api_gen',            # Django API GENERATOR  # <-- NEW
-    'rest_framework',            # Include DRF           # <-- NEW 
-    'rest_framework.authtoken',  # Include DRF Auth      # <-- NEW     
+    "django_api_gen",  # Django API GENERATOR  # <-- NEW
+    "rest_framework",  # Include DRF           # <-- NEW
+    "rest_framework.authtoken",  # Include DRF Auth      # <-- NEW
 ]
 
 MIDDLEWARE = [
@@ -80,13 +85,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "core.urls"
 
-HOME_TEMPLATES      = os.path.join(BASE_DIR, 'templates') 
-TEMPLATE_DIR_DATATB = os.path.join(BASE_DIR, "django_dyn_dt/templates") # <-- NEW: Dynamic_DT
+HOME_TEMPLATES = os.path.join(BASE_DIR, "templates")
+TEMPLATE_DIR_DATATB = os.path.join(
+    BASE_DIR, "django_dyn_dt/templates"
+)  # <-- NEW: Dynamic_DT
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [HOME_TEMPLATES, TEMPLATE_DIR_DATATB],                  # <-- UPD: Dynamic_DT
+        "DIRS": [HOME_TEMPLATES, TEMPLATE_DIR_DATATB],  # <-- UPD: Dynamic_DT
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -94,6 +101,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "home.context_processors.add_business_name",
             ],
         },
     },
@@ -113,15 +121,15 @@ WSGI_APPLICATION = "core.wsgi.application"
 # DB_NAME     = os.getenv('DB_NAME'     , None)
 
 # if DB_ENGINE and DB_NAME and DB_USERNAME:
-#     DATABASES = { 
+#     DATABASES = {
 #       'default': {
-#         'ENGINE'  : 'django.db.backends.' + DB_ENGINE, 
+#         'ENGINE'  : 'django.db.backends.' + DB_ENGINE,
 #         'NAME'    : DB_NAME,
 #         'USER'    : DB_USERNAME,
 #         'PASSWORD': DB_PASS,
 #         'HOST'    : DB_HOST,
 #         'PORT'    : DB_PORT,
-#         }, 
+#         },
 #     }
 # else:
 #     DATABASES = {
@@ -131,34 +139,34 @@ WSGI_APPLICATION = "core.wsgi.application"
 #         }
 #     }
 
-DB_ENGINE = os.getenv('DB_ENGINE', 'mysql')
-DB_USERNAME = os.getenv('DB_USERNAME', 'root')
-DB_PASS = os.getenv('DB_PASS', '')
-DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_PORT = os.getenv('DB_PORT', '3306')
-DB_NAME = os.getenv('DB_NAME', 'simpledjango')
+DB_ENGINE = os.getenv("DB_ENGINE", "mysql")
+DB_USERNAME = os.getenv("DB_USERNAME", "root")
+DB_PASS = os.getenv("DB_PASS", "")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME", "simpledjango")
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'simpledjango',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "simpledjango",
+        "USER": "root",
+        "PASSWORD": "",
+        "HOST": "127.0.0.1",
+        "PORT": "",
     }
 }
 
 # if DB_ENGINE and DB_NAME and DB_USERNAME:
-#     DATABASES = { 
+#     DATABASES = {
 #       'default': {
-#         'ENGINE': 'django.db.backends.' + DB_ENGINE, 
+#         'ENGINE': 'django.db.backends.' + DB_ENGINE,
 #         'NAME': DB_NAME,
 #         'USER': DB_USERNAME,
 #         'PASSWORD': DB_PASS,
 #         'HOST': DB_HOST,
 #         'PORT': DB_PORT,
-#         }, 
+#         },
 #     }
 # else:
 #     DATABASES = {
@@ -167,7 +175,7 @@ DATABASES = {
 #             'NAME': 'db.sqlite3',
 #         }
 #     }
-    
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -202,17 +210,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-DYN_DB_PKG_ROOT = os.path.dirname( inspect.getfile( django_dyn_dt ) ) # <-- NEW: Dynamic_DT
+DYN_DB_PKG_ROOT = os.path.dirname(inspect.getfile(django_dyn_dt))  # <-- NEW: Dynamic_DT
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-    os.path.join(DYN_DB_PKG_ROOT, "templates/static"),                # <-- NEW: Dynamic_DT 
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(DYN_DB_PKG_ROOT, "templates/static"),  # <-- NEW: Dynamic_DT
 )
 
-#if not DEBUG:
+# if not DEBUG:
 #    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
@@ -220,26 +228,30 @@ STATICFILES_DIRS = (
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = '/'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+LOGIN_REDIRECT_URL = "/"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # ### DYNAMIC_DATATB Settings ###
 DYNAMIC_DATATB = {
-    # SLUG -> Import_PATH 
-    'product'  : "home.models.Product",
+    # SLUG -> Import_PATH
+    "product": "home.models.Product",
+    "person": "home.models.Person",
+    "contract": "home.models.Contract",
+    "equipment": "home.models.Equipment",
+    "contractequipment": "home.models.ContractEquipment",
 }
 ########################################
 
 # ### API-GENERATOR Settings ###
 API_GENERATOR = {
-    # SLUG -> Import_PATH 
-    'product'  : "home.models.Product",
+    # SLUG -> Import_PATH
+    "product": "home.models.Product",
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ],
 }
 ########################################

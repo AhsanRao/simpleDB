@@ -46,7 +46,7 @@
                     <div class="dropdown-menu dropdown-menu-right profile-notification">
                         <div class="pro-head">
                             <img src="{% static 'assets/images/user/avatar-1.jpg' %}" class="img-radius" alt="User-Profile-Image">
-                            <span>John Doe</span> {% if request.user.is_authenticated %} {% if request.user.is_superuser %}
+                            <span class="pcoded-mtext">{{ request.user.username }}</span> {% if request.user.is_authenticated %} {% if request.user.is_superuser %}
                             <a href="{% url 'admin:logout' %}" class="dud-logout" title="Logout">
                 {% else %}
                 <a href="{% url 'logout' %}" class="dud-logout" title="Logout">
@@ -70,7 +70,16 @@
                   <i class="feather icon-edit"></i>Change Password
                 </a>
                             </li>
+
                             {% endif %}
+                            <!-- Additional Logout Button -->
+                            <li class="nav-item">
+                                <a href="{% if request.user.is_superuser %}{% url 'admin:logout' %}{% else %}{% url 'logout' %}{% endif %}" class="nav-link">
+                                    <span class="pcoded-micon"><i class="feather icon-power"></i></span>
+                                    <span class="pcoded-mtext">Logout</span>
+                                </a>
+                            </li>
+
                         </ul>
                     </div>
                 </div>
