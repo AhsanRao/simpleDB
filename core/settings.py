@@ -43,7 +43,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5085",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5085",
-    "https://e7c9-110-38-69-85.ngrok-free.app",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -149,9 +148,9 @@ DB_NAME = os.getenv("DB_NAME", "simpledjang1")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "simpledjang1",
+        "NAME": "asimpledatabase",
         "USER": "root",
-        "PASSWORD": "",
+        "PASSWORD": "1234",
         "HOST": "127.0.0.1",
         "PORT": "",
     }
