@@ -1,0 +1,525 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}
+    Add
+    Record
+{% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+    <style>
+  .alert-error {
+    /* Custom styling for error messages */
+    background-color: #ffdddd;
+    border-color: #f44336;
+    color: #f44336;
+  }
+
+  .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: opacity 0.6s ease-in-out;
+  }
+
+  .alert-success {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #3c763d;
+  }
+
+  .alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+  }
+
+  .alert-warning {
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+    color: #8a6d3b;
+  }
+
+  .alert-error,
+  .alert-danger {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    color: #a94442;
+  }
+    </style>
+{% endblock extrastyle %}
+{% block content %}
+    <!-- [ Main Content ] start -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Create Sale</h5>
+                </div>
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="card-block">
+                    <form action="" method="post" id="FormId">
+                        {% csrf_token %}
+                        <h6 class="mb-4">Client Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Client's Email</label>
+                                    <div class="input-group mb-3">
+                                        <input type="email"
+                                               class="form-control"
+                                               placeholder="Enter user's email"
+                                               id="email"
+                                               name="email"
+                                               aria-label="Enter user's email"
+                                               value="{{ form_data.email|default_if_none:'' }}"
+                                               aria-describedby="basic-addon2"
+                                               required />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchUser()">Find Client</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="user-details" class="row" style="display: none">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Client Details</h6>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Full Name:</b> <span id="full-name"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Gender:</b> <span id="gender"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Home Phone:</b> <span id="home-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Business Phone:</b> <span id="business-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Zipcode:</b> <span id="zipcode"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Role:</b> <span id="role"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-12">
+                                                <p>
+                                                    <b>Address:</b> <span id="address"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <h6 class="mb-4">Item Details</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="asset_tag_number">Item's Asset Tag Number</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text"
+                                               class="form-control"
+                                               id="asset_tag_number"
+                                               name="asset_tag_number"
+                                               placeholder="Enter asset tag number"
+                                               value="{{ form_data.asset_tag_number|default_if_none:'' }}"
+                                               aria-label="Enter asset tag number"
+                                               aria-describedby="basic-addon2"
+                                               required />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchItem()">Find Item</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="item-details" class="card" style="display: none">
+                            <div class="card-body">
+                                <h6 class="card-title">Item Details</h6>
+                                <p>
+                                    Item Name: <span id="item-name"></span>
+                                </p>
+                                <p>
+                                    Serial Number: <span id="serial-number"></span>
+                                </p>
+                                <p>
+                                    Installation Date: <span id="install-date"></span>
+                                </p>
+                            </div>
+                        </div>
+                        <br />
+                        <h6 class="mb-4">Sales Executive Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="email">Sale Executive's Email</label>
+                                    <div class="input-group mb-3">
+                                        <input type="email"
+                                               class="form-control"
+                                               id="sale_email"
+                                               name="sale_email"
+                                               placeholder="Enter sale's email"
+                                               value="{{ form_data.sale_email|default_if_none:'' }}"
+                                               required
+                                               aria-label="Enter sale's email"
+                                               aria-describedby="basic-addon2"
+                                               required />
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button" onclick="searchSales()">Find Executive</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sale-details" class="row" style="display: none">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Sales Executive Details</h6>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Full Name:</b> <span id="sfull-name"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Gender:</b> <span id="sgender"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Home Phone:</b> <span id="shome-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Business Phone:</b>
+                                                    <span id="sbusiness-phone"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Zipcode:</b> <span id="szipcode"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p>
+                                                    <b>Role:</b> <span id="srole"></span>
+                                                </p>
+                                            </div>
+                                            <div class="col-12">
+                                                <p>
+                                                    <b>Address:</b> <span id="saddress"></span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <h6 class="mb-4">Sale Details</h6>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="purchase_date">Purchase Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="purchase_date"
+                                           value="{{ form_data.purchase_date|default_if_none:'' }}"
+                                           name="purchase_date" />
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="charges">Charges</label>
+                                    <input type="number"
+                                           class="form-control"
+                                           id="charges"
+                                           name="charges"
+                                           value="{{ form_data.charges|default_if_none:'' }}"
+                                           step="0.01"
+                                           required />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Payment Method Selection -->
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="payment_method">Payment Method</label>
+                                    <select class="form-control"
+                                            id="payment_method"
+                                            name="payment_method"
+                                            onchange="togglePaymentInterval()">
+                                        <option value="One-Time">One-Time</option>
+                                        <option value="Recurring">Recurring</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Payment Interval Selection: Initially hidden, shown if Recurring is selected -->
+                            <div class="col-sm-6"
+                                 id="payment_interval_container"
+                                 style="display: none">
+                                <div class="form-group">
+                                    <label for="payment_interval">Payment Interval</label>
+                                    <select class="form-control" id="payment_interval" name="payment_interval">
+                                        <option value="Monthly">Monthly</option>
+                                        <option value="Quarterly">Quarterly</option>
+                                        <option value="Half-Yearly">Half-Yearly</option>
+                                        <option value="Yearly">Yearly</option>
+                                        <option value="Manual">Manual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Renewal Date: Initially hidden, shown if Recurring and Manual are selected -->
+                        <div class="row" id="renewal_date_container" style="display: none">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="renewal_date">Renewal Date</label>
+                                    <input type="date"
+                                           class="form-control"
+                                           id="renewal_date"
+                                           value="{{ form_data.renewal_date|default_if_none:'' }}"
+                                           name="renewal_date" />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Initial Create Sale Button -->
+                        <button type="submit" id="initialButton" class="btn btn-primary">Create Sale</button>
+                        <!-- Submit Create Sale Button (hidden initially) -->
+                        <button type="submit"
+                                id="submitButton"
+                                class="btn btn-primary"
+                                style="display: none">Create Sale</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block extra_js %}
+    <script>
+    // Function to toggle payment interval selection
+  function togglePaymentInterval() {
+    var paymentMethod = document.getElementById("payment_method").value;
+    var paymentIntervalContainer = document.getElementById(
+      "payment_interval_container"
+    );
+    var renewalDateContainer = document.getElementById(
+      "renewal_date_container"
+    );
+    var paymentIntervalSelect = document.getElementById("payment_interval");
+
+    if (paymentMethod === "Recurring") {
+      paymentIntervalContainer.style.display = "block";
+    } else {
+      paymentIntervalContainer.style.display = "none";
+      renewalDateContainer.style.display = "none"; // Hide renewal date if One-time is selected
+    }
+
+    // Show renewal date input if Manual payment is selected
+    paymentIntervalSelect.onchange = function () {
+      if (this.value === "Manual") {
+        renewalDateContainer.style.display = "block";
+      } else {
+        renewalDateContainer.style.display = "none";
+      }
+    };
+  }
+
+  // Call the function to ensure correct display on page load if values are pre-filled
+  togglePaymentInterval();
+  window.onload = function () {
+    var form = document.getElementById("FormId");
+    if (form) {
+      form.reset();
+    } else {
+    }
+  };
+  document.addEventListener("DOMContentLoaded", function (event) {
+    var form = document.getElementById("FormId");
+    if (form) {
+      form.reset();
+    } else {
+    }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    var initialButton = document.getElementById("initialButton");
+    var submitButton = document.getElementById("submitButton");
+    var saleDetailsDiv = document.getElementById("sale-details");
+    var userDetailsDiv = document.getElementById("user-details");
+    var itemDetailsDiv = document.getElementById("item-details");
+
+    // Function to check and update button's visibility
+    function updateButtonsVisibility() {
+      if (
+        saleDetailsDiv.style.display !== "none" &&
+        userDetailsDiv.style.display !== "none" &&
+        itemDetailsDiv.style.display !== "none"
+      ) {
+        initialButton.style.display = "none";
+        submitButton.style.display = "block";
+      } else {
+        initialButton.style.display = "block";
+        submitButton.style.display = "none";
+      }
+    }
+
+    // Initial check
+    updateButtonsVisibility();
+
+    // Optionally, set up a MutationObserver to detect changes
+    var observerCallback = function (mutations) {
+      mutations.forEach(function (mutation) {
+        if (mutation.attributeName === "style") {
+          updateButtonsVisibility();
+        }
+      });
+    };
+
+    var observerOptions = {
+      attributes: true,
+    };
+    var observer = new MutationObserver(observerCallback);
+
+    // Start observing each div for style changes
+    observer.observe(saleDetailsDiv, observerOptions);
+    observer.observe(userDetailsDiv, observerOptions);
+    observer.observe(itemDetailsDiv, observerOptions);
+  });
+
+  function searchUser() {
+    var email = document.getElementById("email").value;
+
+    console.log("outside", email);
+
+    fetch("/find-user?email=" + email)
+      .then((response) => response.json())
+      .then((data) => {
+        const userDetailsDiv = document.getElementById("user-details");
+        if (data.success) {
+          userDetailsDiv.style.display = "block";
+          document.getElementById("full-name").textContent = data.full_name;
+          document.getElementById("address").textContent = data.address;
+          document.getElementById("gender").textContent = data.gender;
+          document.getElementById("home-phone").textContent = data.home_phone;
+          document.getElementById("business-phone").textContent =
+            data.business_phone;
+          document.getElementById("role").textContent = data.role;
+          document.getElementById("zipcode").textContent = data.zipcode;
+          // Hide any previous flash messages
+          hideFlashMessages();
+        } else {
+          userDetailsDiv.style.display = "none";
+          // Display flash message for 'User not found'
+          showFlashMessage(data.message, "error");
+        }
+      });
+  }
+
+  function searchSales() {
+    var email = document.getElementById("sale_email").value;
+
+    fetch("/find-sales?email=" + email)
+      .then((response) => response.json())
+      .then((data) => {
+        const userDetailsDiv = document.getElementById("sale-details");
+        if (data.success) {
+          userDetailsDiv.style.display = "block";
+          document.getElementById("sfull-name").textContent = data.full_name;
+          document.getElementById("saddress").textContent = data.address;
+          document.getElementById("sgender").textContent = data.gender;
+          document.getElementById("shome-phone").textContent = data.home_phone;
+          document.getElementById("sbusiness-phone").textContent =
+            data.business_phone;
+          document.getElementById("srole").textContent = data.role;
+          document.getElementById("szipcode").textContent = data.zipcode;
+          // Hide any previous flash messages
+          hideFlashMessages();
+        } else {
+          userDetailsDiv.style.display = "none";
+          // Display flash message for 'User not found'
+          showFlashMessage(data.message, "error");
+        }
+      });
+  }
+
+  function searchItem() {
+    var assetTagNumber = document.getElementById("asset_tag_number").value;
+    fetch("/find-item?asset_tag_number=" + assetTagNumber)
+      .then((response) => response.json())
+      .then((data) => {
+        const itemDetailsDiv = document.getElementById("item-details");
+        if (data.success) {
+          itemDetailsDiv.style.display = "block";
+          document.getElementById("item-name").textContent = data.item_name;
+          document.getElementById("serial-number").textContent =
+            data.serial_number;
+          document.getElementById("install-date").textContent =
+            data.install_date;
+          hideFlashMessages();
+        } else {
+          itemDetailsDiv.style.display = "none";
+          showFlashMessage(data.message, "info");
+        }
+      });
+  }
+
+  function hideFlashMessages() {
+    const flashMessages = document.querySelectorAll(".alert");
+    flashMessages.forEach((msg) => (msg.style.display = "none"));
+  }
+
+  function showFlashMessage(message, category) {
+    // Create a new flash message element
+    let newMsg = document.createElement("div");
+    newMsg.className = `alert alert-${category}`;
+    newMsg.textContent = message;
+
+    // fade-in effect
+    newMsg.style.opacity = 0;
+    setTimeout(() => (newMsg.style.opacity = 1), 10);
+
+    // Insert the new message at the top of the form
+    const form = document.getElementById("FormId");
+    form.insertBefore(newMsg, form.firstChild);
+
+    // Auto-dismiss the message after 5 seconds
+    setTimeout(() => {
+      newMsg.style.opacity = 0;
+      setTimeout(() => newMsg.remove(), 600);
+    }, 5000);
+  }
+    </script>
+{% endblock extra_js %}

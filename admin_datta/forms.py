@@ -127,6 +127,7 @@ class StaffRegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.role = User.Role.STAFF
+        user.is_active = False
 
         business_name = self.cleaned_data["business_name"]
         business = Business.objects.get(name=business_name)

@@ -1,0 +1,110 @@
+{% extends "layouts/base.html" %}
+{% block title %}Add Record{% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+    <style>
+  .alert-error {
+    /* Custom styling for error messages */
+    background-color: #ffdddd;
+    border-color: #f44336;
+    color: #f44336;
+  }
+    </style>
+{% endblock extrastyle %}
+{% block content %}
+    <!-- [ Main Content ] start -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Item</h5>
+                </div>
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="card-block">
+                    <form action="{% url 'add_item' %}" method="post" id="FormId">
+                        {% csrf_token %}
+                        <h6 class="mb-4">Item Information</h6>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="asset_tag_number">Asset Tag Number</label>
+                                    <input type="text"
+                                           class="form-control {% if form.asset_tag_number.errors %}is-invalid{% endif %}"
+                                           id="asset_tag_number"
+                                           name="asset_tag_number"
+                                           placeholder="Asset Tag Number"
+                                           value="{{ form.asset_tag_number.value|default_if_none:'' }}" />
+                                    {% for error in form.asset_tag_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="item_name">Item Name</label>
+                                    <input type="text"
+                                           class="form-control {% if form.item_name.errors %}is-invalid{% endif %}"
+                                           id="item_name"
+                                           name="item_name"
+                                           placeholder="Item Name"
+                                           value="{{ form.item_name.value|default_if_none:'' }}" />
+                                    {% for error in form.item_name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="serial_number">Serial Number</label>
+                                    <input type="text"
+                                           class="form-control {% if form.serial_number.errors %}is-invalid{% endif %}"
+                                           id="serial_number"
+                                           name="serial_number"
+                                           placeholder="Serial Number"
+                                           value="{{ form.serial_number.value|default_if_none:'' }}" />
+                                    {% for error in form.serial_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="install_date">Installation Date</label>
+                                    <input type="date" class="form-control {% if form.install_date.errors %}is-invalid{% endif %}" id="install_date" name="install_date" value="{{ form.install_date.value|default_if_none:'' }}" {% for error in form.install_date.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block extra_js %}
+    <script>
+  window.onload = function () {
+    var form = document.getElementById("FormId");
+    if (form) {
+      form.reset();
+    } else {
+    }
+  };
+  document.addEventListener("DOMContentLoaded", function (event) {
+    var form = document.getElementById("FormId");
+    if (form) {
+      form.reset();
+    } else {
+    }
+  });
+    </script>
+{% endblock extra_js %}

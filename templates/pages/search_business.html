@@ -1,0 +1,473 @@
+{% extends "layouts/base.html" %}
+{% block title %}Auctions{% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+    <style>
+    /* The Modal (background) */
+    
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+    /* Modal Content */
+    
+    .modal-content {
+        position: relative;
+        margin: 7% auto;
+        padding: 20px;
+        width: 60%;
+        background-color: #2C394B;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+    /* The Close Button */
+    
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .hidden-row {
+        display: none;
+    }
+    /* Modal Content (Image) */
+    
+    .modal-content img {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+    }
+    /* Caption of Modal Image */
+    
+    #modal-caption {
+        margin: auto;
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 15px 0;
+        font-size: 15px;
+    }
+    
+    #clearFilters {
+        background: none;
+        border: none;
+        color: red;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-color: red;
+        cursor: pointer;
+        display: inline-block;
+        /* To allow margins */
+        margin: 5px;
+    }
+    
+    #activeFilters .filter-label {
+        background-color: #f7f7f7;
+        padding: 10px 20px;
+        padding-right: 40px;
+        margin: 5px;
+        border-radius: 15px;
+        /* Rounded shape */
+        display: inline-block;
+        position: relative;
+    }
+    
+    .filter-label a {
+        margin-left: 10px;
+        color: black;
+        text-decoration: none;
+        position: absolute;
+        /* Positioning cross sign on the right */
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .filters-container {
+        display: flex;
+    }
+    
+    .flex-grow {
+        flex: 1;
+    }
+    
+    .sort-arrows {
+        cursor: pointer;
+    }
+    
+    .description-cell {
+        cursor: pointer;
+    }
+    
+    .asc {
+        cursor: pointer;
+    }
+    
+    .desc {
+        cursor: pointer;
+    }
+    .action-icon {
+        cursor: pointer;
+        margin: 0 5px;
+    }
+    </style>
+{% endblock extrastyle %}
+{% block content %}
+    <div class="main-body">
+        <div class="page-wrapper">
+            <!-- [ Main Content ] start -->
+            <div class="row">
+                <!-- [ Hover-table ] start -->
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>All Persons</h5>
+                        </div>
+                        <div class="card-block table-border-style">
+                            <!-- Start of form -->
+                            <form id="filterForm" method="post" action="{% url 'search_business' %}">
+                                {% csrf_token %}
+                                <div class="row mb-4 p-3 align-items-center">
+                                    <div class="col-lg-8 col-md-6">
+                                        <div class="custom-search">
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       id="custom-m-search"
+                                                       name="search_term"
+                                                       class="form-control"
+                                                       placeholder="Search . . ."
+                                                       value="{{ search_term }}">
+                                                <a href="javascript:"
+                                                   class="input-group-append custom-search-close"
+                                                   onclick="clearSearch()">
+                                                    <i class="feather icon-x input-group-text"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-3 mb-2 mb-lg-0">
+                                        <button type="submit"
+                                                class="form-control btn-success"
+                                                id="filtrer"
+                                                style="cursor: pointer">Search</button>
+                                    </div>
+                                    {% if request.user.is_authenticated and not request.user.is_superuser and request.user.role == 'ADMIN' %}
+                                        <div class="col-lg-2 col-md-3 mb-2 mb-lg-0">
+                                            <a href="{% url 'admin:home_owner_add' %}" class="btn btn-primary">Add New Owner</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </form>
+                            <!-- End of form -->
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                #
+                                                <span class="asc" onclick="sortTable(0, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(0, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                            <th>
+                                                Business
+                                                <span class="asc" onclick="sortTable(1, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(1, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                            <th>
+                                                Owner
+                                                <span class="asc" onclick="sortTable(2, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(2, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                            <th>
+                                                Email
+                                                <span class="asc" onclick="sortTable(3, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(3, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                            <th>
+                                                Staff
+                                                <span class="asc" onclick="sortTable(4, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(4, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                            <th>
+                                                Status
+                                                <span class="asc" onclick="sortTable(5, 'asc')" title="Sort Ascending">▲</span>
+                                                <span class="desc" onclick="sortTable(5, 'desc')" title="Sort Descending">▼</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for owner in owners %}
+                                            <tr class="hidden-row">
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ owner.business.name }}</td>
+                                                <td>
+                                                    {% if owner.first_name and owner.last_name %}
+                                                        {{ owner.first_name }} {{ owner.last_name }}
+                                                    {% else %}
+                                                        {{ owner.username }}
+                                                    {% endif %}
+                                                </td>
+                                                <td data-fulltitle="{{ owner.email }}" class="wrap-text">
+                                                    <a href="mailto:{{ owner.email }}" target="_blank" id="title-link">{{ owner.email }}</a>
+                                                </td>
+                                                <td>{{ owner.staff_count }}</td>
+                                                <td>
+                                                    {% if owner.is_active %}
+                                                        <span class="badge badge-success">Active</span>
+                                                    {% else %}
+                                                        <span class="badge badge-danger">Inactive</span>
+                                                    {% endif %}
+                                                </td>
+                                                {% if request.user.is_authenticated and not request.user.is_superuser and request.user.role == 'ADMIN' %}
+                                                    <td>
+                                                        <span onclick="redirectToEditPage('{{ owner.id }}')"
+                                                              class="action-icon edit-icon">✏️</span>
+                                                    </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% empty %}
+                                            <tr>
+                                                <td colspan="14">No Business found.</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- [ Hover-table ] end -->
+            </div>
+            <!-- [ Main Content ] end -->
+        </div>
+        <button style="display: block;
+                       margin: auto;
+                       width:50%"
+                id="loadMoreButton"
+                onclick="loadMoreRows()"
+                type="button"
+                class="btn btn-primary"
+                title="Load More Auctions"
+                data-toggle="tooltip">Load More</button>
+    </div>
+    <!-- [ Main Content ] end -->
+    <div id="descriptionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modal-text"></p>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+    let currentRow = 0;
+    const rowsToShow = 50; // Number of rows to show initially and per "Load More" click
+
+    function loadMoreRows() {
+        const rows = document.querySelectorAll('.hidden-row');
+        let newCurrentRow = currentRow + rowsToShow;
+
+        // Unhide rows from currentRow to newCurrentRow
+        for (let i = currentRow; i < newCurrentRow && i < rows.length; i++) {
+            rows[i].style.display = 'table-row';
+        }
+        currentRow = newCurrentRow;
+
+        // Hide "Load More" button if all rows are visible
+        if (currentRow >= rows.length) {
+            document.getElementById('loadMoreButton').style.display = 'none';
+        }
+    }
+
+    // Call the function initially to show the first set of rows
+    loadMoreRows();
+
+
+    // JavaScript to toggle full title and handle link
+    function toggleTitle(element, event) {
+        var fullTitle = element.getAttribute("data-fulltitle");
+        var truncatedTitle = element.getAttribute("data-truncatedtitle");
+        var linkElement = element.querySelector('a');
+        var currentTitle = linkElement.textContent;
+
+        // Prevent the link from being activated when the title is truncated
+        if (currentTitle === truncatedTitle && event.target.tagName === 'A') {
+            event.preventDefault();
+        }
+
+        if (currentTitle === truncatedTitle) {
+            linkElement.textContent = fullTitle;
+        } else {
+            linkElement.textContent = truncatedTitle;
+        }
+        element.classList.toggle("wrap-text");
+    }
+
+
+    function toggleDescription(element) {
+        var fullText = element.getAttribute("data-fulltext");
+        var truncatedText = element.getAttribute("data-truncatedtext");
+        if (element.innerHTML === truncatedText) {
+            element.innerHTML = fullText;
+        } else {
+            element.innerHTML = truncatedText;
+        }
+        element.classList.toggle("wrap-text");
+    }
+
+    // This assumes that your DOM is fully loaded; otherwise, wrap this in a DOMContentLoaded event.
+    var cells = document.querySelectorAll('.description-cell');
+    cells.forEach(function(cell) {
+        cell.addEventListener('click', function(event) {
+            var fullDescription = event.target.getAttribute('data-description');
+            showDescription(fullDescription);
+        });
+    });
+
+
+    // Function to show full description in a modal
+    function showDescription(fullDescription) {
+        var modal = document.getElementById("descriptionModal");
+        document.getElementById("modal-text").innerHTML = fullDescription;
+        updateModalBackground("descriptionModal");
+        modal.style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        var modal = document.getElementById("descriptionModal");
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        var descriptionModal = document.getElementById("descriptionModal");
+        var imageModal = document.getElementById("imageModal");
+
+        if (event.target === descriptionModal || event.target === imageModal) {
+            descriptionModal.style.display = "none";
+            imageModal.style.display = "none";
+        }
+    };
+
+
+    function updateModalBackground(modalId) {
+        var h5Element = document.querySelector('h5');
+        var modalContent = document.getElementById(modalId).querySelector(".modal-content");
+
+        var textColor = window.getComputedStyle(h5Element, null).getPropertyValue("color");
+
+        if (textColor === 'rgb(255, 255, 255)') {
+            modalContent.style.backgroundColor = '#2C394B';
+        } else {
+            modalContent.style.backgroundColor = 'white';
+        }
+    }
+
+    function sortTable(column, direction) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.querySelector(".table-hover"); 
+        switching = true;
+
+        // Continue until no switching has been done
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+
+            // Loop through all table rows (except the headers)
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+
+                // Get the two elements to compare
+                x = rows[i].getElementsByTagName("TD")[column];
+                y = rows[i + 1].getElementsByTagName("TD")[column];
+
+                // Check if the two rows should switch place, based on the direction
+                if (direction === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                } else if (direction === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                // If a switch has been marked, make the switch and mark the switch as done
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+
+    function clearSearch() {
+        window.location.href = "{% url 'search_business' %}";
+    }
+    const csrfToken = getCookie('csrftoken');
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function deleteRow(itemId, element) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            // AJAX call to delete the contract
+            fetch(`/delete-person/${itemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken // Include CSRF token in the request header
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the row from the table
+                        var row = element.closest('tr');
+                        row.parentNode.removeChild(row);
+                    } else {
+                        alert("Error: Could not delete the contract");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function redirectToEditPage(personId) {
+        window.location.href = `/admin/home/owner/${personId}/change`;
+    }
+    </script>
+{% endblock extra_js %}

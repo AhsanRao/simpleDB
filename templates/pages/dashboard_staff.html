@@ -1,0 +1,56 @@
+{% extends "layouts/base.html" %}
+{% block title %}Dashboard{% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+    <style>
+    .welcome-card {
+        margin-top: 50px;
+        /* Adjust this value for top padding */
+        padding: 20px;
+        border: 1px solid #ddd;
+        /* Light grey border */
+        border-radius: 10px;
+        /* Rounded corners */
+        background-color: #f9f9f9;
+        /* Light background */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        /* Subtle shadow */
+    }
+    
+    .welcome-message {
+        margin-bottom: 20px;
+    }
+    
+    .button-group a {
+        margin: 0 10px;
+        /* Space between buttons */
+    }
+    </style>
+{% endblock stylesheets %}
+{% block content %}
+    <!-- [ Main Content ] start -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Staff Dashboard</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="welcome-message" style="color: #2a2a2a;">Welcome Back to Your Simple Database</h2>
+                    <h5 style="padding-top:1%; color:rgb(109, 109, 109); padding-bottom:4%;">
+                        Your one-stop solution for managing data efficiently.
+                    </h5>
+                    <div class="button-group">
+                        <a href="{% url 'add_sale' %}" class="btn btn-primary">Add Sale</a>
+                        <a href="{% url 'search_sale' %}" class="btn btn-secondary">Search Sale</a>
+                        <a href="{% url 'add_person' %}" class="btn btn-success">Add Person</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+{% endblock javascripts %}

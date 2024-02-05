@@ -1,0 +1,241 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}Add Record{% endblock %}
+<!-- Specific CSS goes HERE -->
+{% block extrastyle %}
+    <style>
+    .alert-error {
+        /* Custom styling for error messages */
+        background-color: #ffdddd;
+        border-color: #f44336;
+        color: #f44336;
+    }
+    </style>
+{% endblock extrastyle %}
+{% block content %}
+    <!-- [ Main Content ] start -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add Person</h5>
+                </div>
+                {% if messages %}
+                    <div>
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="card-block">
+                    <form action="{% url 'add_person' %}" method="post" id="FormId">
+                        {% csrf_token %}
+                        <h6 class="mb-4">Personal Information</h6>
+                        <div class="row">
+                            <!-- First Name Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="first_name">First Name</label>
+                                    <input type="text"
+                                           class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                                           id="first_name"
+                                           name="first_name"
+                                           placeholder="First Name"
+                                           value="{{ form.first_name.value|default_if_none:'' }}"
+                                           required>
+                                    {% for error in form.first_name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <!-- Last Name Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="last_name">Last Name</label>
+                                    <input type="text"
+                                           class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                                           id="last_name"
+                                           name="last_name"
+                                           placeholder="Last Name"
+                                           value="{{ form.last_name.value|default_if_none:'' }}">
+                                    {% for error in form.last_name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Gender Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="gender">Gender</label>
+                                    <select class="form-control {% if form.gender.errors %}is-invalid{% endif %}"
+                                            id="gender"
+                                            name="gender">
+                                        <option value="M" {% if form.gender.value == 'M' %}selected{% endif %}>Male</option>
+                                        <option value="F" {% if form.gender.value == 'F' %}selected{% endif %}>Female</option>
+                                        <option value="O" {% if form.gender.value == 'O' %}selected{% endif %}>Other</option>
+                                    </select>
+                                    {% for error in form.gender.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <!-- Email Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="email">Email address</label>
+                                    <input type="email"
+                                           class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                                           id="email"
+                                           name="email"
+                                           placeholder="Enter email"
+                                           value="{{ form.email.value|default_if_none:'' }}"
+                                           required>
+                                    {% for error in form.email.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Role Field -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="role">Role</label>
+                                    <select class="form-control {% if form.role.errors %}is-invalid{% endif %}"
+                                            id="role"
+                                            name="role">
+                                        <option value="ADMIN" {% if form.role.value == 'ADMIN' %}selected{% endif %}>Administrator</option>
+                                        <option value="CLIENT"
+                                                {% if form.role.value == 'CLIENT' %}selected{% endif %}>Client</option>
+                                        <option value="EXEC" {% if form.role.value == 'EXEC' %}selected{% endif %}>Executive</option>
+                                        <option value="LEGAL" {% if form.role.value == 'LEGAL' %}selected{% endif %}>Legal</option>
+                                        <option value="ACCT" {% if form.role.value == 'ACCT' %}selected{% endif %}>Accountant</option>
+                                    </select>
+                                    {% for error in form.role.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Address Details -->
+                        <br>
+                        <h6 class="mb-4">Address Details</h6>
+                        <div class="row">
+                            <!-- Street Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="street">Street</label>
+                                    <input type="text"
+                                           class="form-control {% if form.street.errors %}is-invalid{% endif %}"
+                                           id="street"
+                                           name="street"
+                                           placeholder="Street Address"
+                                           value="{{ form.street.value|default_if_none:'' }}">
+                                    {% for error in form.street.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <!-- City Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text"
+                                           class="form-control {% if form.city.errors %}is-invalid{% endif %}"
+                                           id="city"
+                                           name="city"
+                                           placeholder="City"
+                                           value="{{ form.city.value|default_if_none:'' }}">
+                                    {% for error in form.city.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- State Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text"
+                                           class="form-control {% if form.state.errors %}is-invalid{% endif %}"
+                                           id="state"
+                                           name="state"
+                                           placeholder="State"
+                                           value="{{ form.state.value|default_if_none:'' }}">
+                                    {% for error in form.state.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <!-- Zipcode Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="zipcode">Zipcode</label>
+                                    <input type="text"
+                                           class="form-control {% if form.zipcode.errors %}is-invalid{% endif %}"
+                                           id="zipcode"
+                                           name="zipcode"
+                                           placeholder="Zipcode"
+                                           value="{{ form.zipcode.value|default_if_none:'' }}">
+                                    {% for error in form.zipcode.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Country Field -->
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text"
+                                           class="form-control {% if form.country.errors %}is-invalid{% endif %}"
+                                           id="country"
+                                           name="country"
+                                           placeholder="Country"
+                                           value="{{ form.country.value|default_if_none:'' }}">
+                                    {% for error in form.country.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Phone Numbers -->
+                        <br>
+                        <h6 class="mb-4">Phone Numbers</h6>
+                        <div class="row">
+                            <!-- Home Phone Number Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="home_phone">Home Phone Number</label>
+                                    <input type="text"
+                                           class="form-control {% if form.home_phone_number.errors %}is-invalid{% endif %}"
+                                           id="home_phone"
+                                           name="home_phone_number"
+                                           placeholder="Home Phone Number"
+                                           value="{{ form.home_phone_number.value|default_if_none:'' }}">
+                                    {% for error in form.home_phone_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                            <!-- Business Phone Number Field -->
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="business_phone">Business Phone Number</label>
+                                    <input type="text"
+                                           class="form-control {% if form.business_phone_number.errors %}is-invalid{% endif %}"
+                                           id="business_phone"
+                                           name="business_phone_number"
+                                           placeholder="Business Phone Number"
+                                           value="{{ form.business_phone_number.value|default_if_none:'' }}">
+                                    {% for error in form.business_phone_number.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block extra_js %}
+    <script>
+    window.onload = function() {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else { }
+    };
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var form = document.getElementById("FormId");
+        if (form) {
+            form.reset();
+        } else { }
+    });
+    </script>
+{% endblock extra_js %}

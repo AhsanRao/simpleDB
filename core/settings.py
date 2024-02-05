@@ -43,7 +43,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5085",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5085",
-    "https://8805-110-38-69-85.ngrok-free.app",
+    "https://e7c9-110-38-69-85.ngrok-free.app",
 ]
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "home",
     # Tooling Dynamic_DT
-    "django_dyn_dt",  # <-- NEW: Dynamic_DT
+    # "django_dyn_dt",  # <-- NEW: Dynamic_DT
     # Tooling API-GEN
     "django_api_gen",  # Django API GENERATOR  # <-- NEW
     "rest_framework",  # Include DRF           # <-- NEW
@@ -144,12 +144,12 @@ DB_USERNAME = os.getenv("DB_USERNAME", "root")
 DB_PASS = os.getenv("DB_PASS", "")
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "3306")
-DB_NAME = os.getenv("DB_NAME", "simpledjango")
+DB_NAME = os.getenv("DB_NAME", "simpledjang1")
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "simpledjango",
+        "NAME": "simpledjang1",
         "USER": "root",
         "PASSWORD": "",
         "HOST": "127.0.0.1",
@@ -231,15 +231,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = "/"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# ### DYNAMIC_DATATB Settings ###
-DYNAMIC_DATATB = {
-    # SLUG -> Import_PATH
-    "product": "home.models.Product",
-    "person": "home.models.Person",
-    "contract": "home.models.Contract",
-    "equipment": "home.models.Equipment",
-    "contractequipment": "home.models.ContractEquipment",
-}
 ########################################
 
 # ### API-GENERATOR Settings ###

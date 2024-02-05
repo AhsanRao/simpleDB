@@ -25,18 +25,308 @@ from django.contrib.auth.decorators import login_required, permission_required
 import json
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.views.decorators.csrf import csrf_exempt
+import csv
+from datetime import datetime, timedelta
+from django.http import HttpResponse
+from django.utils import timezone
+from django.db.models import Sum
 from .forms import *
 from .models import *
 
 
 @login_required(login_url="/accounts/login/")
 def index(request):
+    # Filter staff members by the business of the logged-in user and their active status
+    inactive_users = Staff.objects.filter(
+        business=request.user.business, is_active=False
+    ).order_by("-id")[:5]
+    total_staff = Staff.objects.filter(business=request.user.business).count()
+    total_clients = Person.objects.filter(
+        business=request.user.business, role="Client"
+    ).count()
+
+    # Calculate daily, monthly, and yearly sales
+    today = timezone.now().date()
+    current_month = today.month
+    current_year = today.year
+
+    # Filter sales for today
+    daily_sales_amount = (
+        Sale.objects.filter(
+            purchase_date=today,
+            business=request.user.business,  # Assuming the user is associated with a business
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    # Filter sales for the current month
+    monthly_sales_amount = (
+        Sale.objects.filter(
+            purchase_date__year=current_year,
+            purchase_date__month=current_month,
+            business=request.user.business,
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    # Filter sales for the current year
+    yearly_sales_amount = (
+        Sale.objects.filter(
+            purchase_date__year=current_year, business=request.user.business
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    yesterday = today - timedelta(days=1)
+
+    yesterday_sales_amount = (
+        Sale.objects.filter(
+            purchase_date=yesterday, business=request.user.business
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    # Calculate the percentage change
+    if yesterday_sales_amount > 0:
+        daily_sales_change_percentage = (
+            (daily_sales_amount - yesterday_sales_amount) / yesterday_sales_amount
+        ) * 100
+    elif yesterday_sales_amount == 0 and daily_sales_amount > 0:
+        daily_sales_change_percentage = 100
+    elif yesterday_sales_amount == 0 and daily_sales_amount == 0:
+        daily_sales_change_percentage = 0
+    else:
+        daily_sales_change_percentage = -100
+
+    previous_month = current_month - 1 if current_month > 1 else 12
+    previous_month_year = current_year if current_month > 1 else current_year - 1
+
+    # Previous month's sales
+    previous_month_sales_amount = (
+        Sale.objects.filter(
+            purchase_date__year=previous_month_year,
+            purchase_date__month=previous_month,
+            business=request.user.business,
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    # Calculate the percentage change
+    if previous_month_sales_amount > 0:
+        monthly_sales_change_percentage = (
+            (monthly_sales_amount - previous_month_sales_amount)
+            / previous_month_sales_amount
+        ) * 100
+    elif previous_month_sales_amount == 0 and monthly_sales_amount > 0:
+        monthly_sales_change_percentage = 100
+    elif previous_month_sales_amount == 0 and monthly_sales_amount == 0:
+        monthly_sales_change_percentage = 0
+    else:
+        monthly_sales_change_percentage = -100
+
+    previous_year = current_year - 1
+    # Previous year's sales
+    previous_year_sales_amount = (
+        Sale.objects.filter(
+            purchase_date__year=previous_year, business=request.user.business
+        ).aggregate(total=Sum("charges"))["total"]
+        or 0
+    )
+
+    # Calculate the percentage change
+    if previous_year_sales_amount > 0:
+        yearly_sales_change_percentage = (
+            (yearly_sales_amount - previous_year_sales_amount)
+            / previous_year_sales_amount
+        ) * 100
+    elif previous_year_sales_amount == 0 and yearly_sales_amount > 0:
+        yearly_sales_change_percentage = 100
+    elif previous_year_sales_amount == 0 and yearly_sales_amount == 0:
+        yearly_sales_change_percentage = 0
+    else:
+        yearly_sales_change_percentage = -100
+
     context = {
-        "segment": "index",
-        #'products' : Product.objects.all()
+        "segment": "dashboard",
+        "users": inactive_users,
+        "total_staff": total_staff,
+        "total_clients": total_clients,
+        "daily_sales": daily_sales_amount,
+        "monthly_sales": monthly_sales_amount,
+        "yearly_sales": yearly_sales_amount,
+        "daily_sales_change_percentage": daily_sales_change_percentage,
+        "daily_sales_change_percentage_abs": abs(daily_sales_change_percentage),
+        "monthly_sales_change_percentage": monthly_sales_change_percentage,
+        "monthly_sales_change_percentage_abs": abs(monthly_sales_change_percentage),
+        "yearly_sales_change_percentage": yearly_sales_change_percentage,
+        "yearly_sales_change_percentage_abs": abs(yearly_sales_change_percentage),
     }
-    return render(request, "pages/dashboard.html", context)
+    staff_context = {
+        "segment": "dashboard",
+    }
+
+    # Get all businesses
+    # businesses = Business.objects.all()
+
+    # Get the most recent 5 businesses
+    businesses = Business.objects.all().order_by("-id")[:5]
+
+    # Create a list to store business data
+    business_data = []
+
+    for business in businesses:
+        # Retrieve the owner associated with each business
+        try:
+            owner = Owner.objects.get(business=business)
+            owner_name = owner.username
+            owner_email = owner.email
+            date_joined = owner.date_joined
+            status = owner.is_active
+
+        except Owner.DoesNotExist:
+            owner_name = "N/A"
+            owner_email = ""
+            date_joined = None
+            status = False
+
+        # Create a dictionary for each business's data
+        business_info = {
+            "business_name": business.name,
+            "owner_name": owner_name,
+            "date_joined": date_joined,
+            "status": status,
+            "owner_email": owner_email,
+        }
+
+        business_data.append(business_info)
+
+    business_count = Business.objects.count()
+    user_count = User.objects.count()
+
+    admin_context = {
+        "segment": "dashboard",
+        "business_data": business_data,
+        "business_count": business_count,
+        "user_count": user_count,
+    }
+    if request.user.role == "OWNER":
+        return render(request, "pages/dashboard_business.html", context)
+    elif request.user.role == "STAFF":
+        return render(request, "pages/dashboard_staff.html", staff_context)
+    elif request.user.role == "ADMIN":
+        return render(request, "pages/dashboard_admin.html", admin_context)
+    else:
+        return render(request, "pages/dashboard.html", context)
+
+
+@login_required(login_url="/accounts/login/")
+def profile(request):
+    context = {
+        "segment": "profile",
+    }
+    return render(request, "pages/profile.html", context)
+
+
+@login_required
+@permission_required("home.change_staff", raise_exception=True)
+@require_http_methods(["POST"])
+def approve_staff(request, user_id):
+    try:
+        user = get_object_or_404(Staff, pk=user_id)
+        print(user.email)
+        # Check if the user's business matches the logged-in user's business
+        if user.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to approve this user.",
+                },
+                status=403,
+            )
+        user.is_active = True
+        user.save()
+        return JsonResponse({"success": True})
+    except Staff.DoesNotExist:
+        return JsonResponse({"success": False}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+
+@login_required
+@permission_required("home.view_staff", raise_exception=True)
+def search_staff(request):
+    search_term = (
+        request.POST.get("search_term", "").strip() if request.method == "POST" else ""
+    )
+
+    user_business = request.user.business
+    # base_queryset = Staff.objects.filter(business=user_business, is_active=True)
+    base_queryset = Staff.objects.filter(business=user_business)
+
+    if search_term:
+        staff_list = base_queryset.filter(
+            Q(first_name__icontains=search_term)
+            | Q(last_name__icontains=search_term)
+            | Q(email__icontains=search_term)
+            | Q(username__icontains=search_term)
+        )
+    else:
+        staff_list = base_queryset
+
+    context = {
+        "staff_list": staff_list,
+        "segment": "search-staff",
+        "search_term": search_term,  # Pass the search term back to the template
+    }
+    return render(request, "pages/search_staff.html", context)
+
+
+@login_required
+@require_http_methods(["DELETE"])
+@permission_required("home.delete_staff", raise_exception=True)
+def delete_staff(request, staff_id):
+    try:
+        staff = get_object_or_404(User, pk=staff_id)
+        # Check if the staff's business matches the user's business
+        if staff.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to delete this staff.",
+                },
+                status=403,
+            )
+        staff.delete()
+        return JsonResponse({"success": True})
+    except User.DoesNotExist:
+        return JsonResponse({"success": False}, status=404)
+    except Exception as e:
+        # Log the error
+        return JsonResponse({"success": False}, status=500)
+
+
+@login_required
+@permission_required("home.delete_staff", raise_exception=True)
+@require_http_methods(["POST"])
+def reject_staff(request, user_id):
+    try:
+        user = get_object_or_404(Staff, pk=user_id)
+        # business check as in approve_user
+        if user.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to reject this user.",
+                },
+                status=403,
+            )
+        user.delete()
+        return JsonResponse({"success": True})
+    except Staff.DoesNotExist:
+        return JsonResponse({"success": False}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)}, status=500)
 
 
 def staff_dashborad(request):
@@ -46,109 +336,9 @@ def staff_dashborad(request):
     return render(request, "pages/staff.html", context)
 
 
-def tables(request):
-    context = {"segment": "tables"}
-    return render(request, "pages/dynamic-tables.html", context)
-
-
-@login_required(login_url="/accounts/login/")
-@permission_required("home.delete_person", raise_exception=True)
-def person(request):
-    context = {"segment": "person"}
-    return render(request, "pages/persons.html", context)
-
-
-@login_required(login_url="/accounts/login/")
-@permission_required("home.delete_equipment", raise_exception=True)
-def equipment(request):
-    context = {"segment": "equipment"}
-    return render(request, "pages/equipments.html", context)
-
-
-@login_required(login_url="/accounts/login/")
-@permission_required("home.delete_contract", raise_exception=True)
-def contract(request):
-    context = {"segment": "contract"}
-    return render(request, "pages/contracts.html", context)
-
-
-from django.views.decorators.csrf import csrf_exempt
-
-
-# @login_required(login_url="/accounts/login/")
-# @permission_required("home.add_person", raise_exception=True)
-# def add_user(request):
-#     if request.method == "POST":
-#         try:
-#             # Get data from form
-#             first_name = request.POST["first_name"]
-#             last_name = request.POST["last_name"]
-#             gender = request.POST["gender"]
-#             email = request.POST["email"]
-#             role = request.POST["role"]
-
-#             street = request.POST["street"]
-#             city = request.POST["city"]
-#             state = request.POST["state"]
-#             zipcode = request.POST["zipcode"]
-#             country = request.POST["country"]
-
-#             home_phone = request.POST["home_phone"]
-#             business_phone = request.POST["business_phone"]
-
-#             # Get the business from the logged-in user
-#             user_business = request.user.business
-
-#             # Create and save the new Person object
-#             person = Person(
-#                 first_name=first_name,
-#                 last_name=last_name,
-#                 gender=gender,
-#                 email=email,
-#                 role=role,
-#                 street=street,
-#                 city=city,
-#                 state=state,
-#                 zipcode=zipcode,
-#                 country=country,
-#                 home_phone_number=home_phone,
-#                 business_phone_number=business_phone,
-#                 business=user_business,  # Set the business
-#             )
-#             person.save()
-
-#             messages.success(request, "User added successfully!")
-#             return redirect("add_user")
-#         except IntegrityError as e:
-#             error_message = str(e)
-#             # Check for unique constraint on the email field
-#             if (
-#                 "Duplicate entry" in error_message
-#                 and "for key 'email'" in error_message
-#             ):
-#                 messages.error(
-#                     request,
-#                     "Email already in use. Please use a different email.",
-#                     extra_tags="info",
-#                 )
-#             else:
-#                 messages.error(
-#                     request,
-#                     "A database error occurred. Please try again.",
-#                     extra_tags="error",
-#                 )
-
-#         except Exception as e:
-#             messages.error(request, "An unexpected error occurred: " + str(e))
-
-#     # If GET request or form is invalid, render the form with any existing data
-#     context = {"form_data": request.POST or None, "segment": "add-user"}
-#     return render(request, "pages/adduser.html", context)
-
-
 @login_required(login_url="/accounts/login/")
 @permission_required("home.add_person", raise_exception=True)
-def add_user(request):
+def add_person(request):
     if request.method == "POST":
         form = PersonForm(request.POST)
         if form.is_valid():
@@ -157,13 +347,15 @@ def add_user(request):
                 person.business = request.user.business  # Set the business
                 person.save()
 
-                messages.success(request, "User added successfully!")
-                return redirect("add_user")
+                messages.success(request, "Person added successfully!")
+                return redirect("add_person")
             except IntegrityError as e:
-                if "UNIQUE constraint failed: home_person.email" in str(e):
+                if "unique_email_per_business" in str(e):
                     form.add_error(
                         "email", "Email already in use. Please use a different email."
                     )
+                    messages.error(request, "Please correct the errors below.")
+
                 else:
                     messages.error(
                         request, "A database error occurred. Please try again."
@@ -173,157 +365,147 @@ def add_user(request):
     else:
         form = PersonForm()
 
-    context = {"form": form, "segment": "add-user"}
-    return render(request, "pages/adduser.html", context)
-
-
-# @login_required(login_url="/accounts/login/")
-# @permission_required("home.add_equipment", raise_exception=True)
-# def add_equipment(request):
-#     if request.method == "POST":
-#         try:
-#             # Extract data from the form
-#             asset_tag_number = request.POST.get("asset_tag_number")
-#             equipment_name = request.POST.get("equipment_name")
-#             serial_number = request.POST.get("serial_number")
-#             install_date = request.POST.get("install_date")
-
-#             # Convert the install_date string to a datetime object
-#             install_date_obj = datetime.strptime(install_date, "%Y-%m-%d").date()
-
-#             # Get the business from the logged-in user
-#             user_business = request.user.business
-
-#             # Create new instance of Equipment
-#             new_equipment = Equipment(
-#                 asset_tag_number=asset_tag_number,
-#                 equipment_name=equipment_name,
-#                 serial_number=serial_number,
-#                 install_date=install_date_obj,
-#                 business=user_business  # Set the business
-#             )
-#             new_equipment.save()
-
-#             messages.success(request, "Equipment added successfully!")
-#             return redirect("add_equipment")
-
-#         except IntegrityError as e:
-#             error_message = str(e)
-#             # Check for unique constraint on the asset_tag_number field
-#             if (
-#                 "Duplicate entry" in error_message
-#                 and "for key 'asset_tag_number'" in error_message
-#             ):
-#                 messages.error(
-#                     request,
-#                     "Asset Tag Number or Serial Number already in use. Please use different values.",
-#                     extra_tags="info",
-#                 )
-#             else:
-#                 messages.error(
-#                     request,
-#                     "A database error occurred. Please try again.",
-#                     extra_tags="error",
-#                 )
-
-#         except ValueError as e:
-#             # This block catches errors like incorrect date format
-#             messages.error(request, f"An error occurred: {e}")
-
-#         except Exception as e:
-#             messages.error(request, f"An unexpected error occurred: {e}")
-#     # If GET request or form is invalid, render the form with any existing data
-#     context = {"form_data": request.POST or None, "segment": "add-equipment"}
-#     return render(request, "pages/addequipment.html", context)
+    context = {"form": form, "segment": "add-person"}
+    return render(request, "pages/add_person.html", context)
 
 
 @login_required(login_url="/accounts/login/")
-@permission_required("home.add_equipment", raise_exception=True)
-def add_equipment(request):
+@permission_required("home.add_item", raise_exception=True)
+def add_item(request):
     if request.method == "POST":
-        form = EquipmentForm(request.POST)
+        form = ItemForm(request.POST)
         if form.is_valid():
             try:
-                # Set the business for the equipment
-                equipment = form.save(commit=False)
-                equipment.business = request.user.business
-                equipment.save()
+                # Set the business for the item
+                item = form.save(commit=False)
+                item.business = request.user.business
+                item.save()
 
-                messages.success(request, "Equipment added successfully!")
-                return redirect("add_equipment")
+                messages.success(request, "Item added successfully!")
+                return redirect("add_item")
             except IntegrityError as e:
+                if "unique_asset_tag_per_business" in str(e):
+                    form.add_error(
+                        "asset_tag_number",
+                        "Asset tag number already in use for this business. Please use a different asset tag number.",
+                    )
+                if "unique_serial_number_per_business" in str(e):
+                    form.add_error(
+                        "serial_number",
+                        "Serial number already in use for this business. Please use a different serial number.",
+                    )
                 messages.error(
                     request,
-                    "A database error occurred. Please try again.",
+                    "Please correct the errors below.",
                     extra_tags="error",
                 )
         else:
             messages.error(request, "Please correct the errors below.")
     else:
-        form = EquipmentForm()
+        form = ItemForm()
 
-    context = {"form": form, "segment": "add-equipment"}
-    return render(request, "pages/addequipment.html", context)
+    context = {"form": form, "segment": "add-item"}
+    return render(request, "pages/add_item.html", context)
+
+
+from datetime import datetime
 
 
 @login_required
-@permission_required("home.add_contract", raise_exception=True)
-def add_contract(request):
+@permission_required("home.add_sale", raise_exception=True)
+def add_sale(request):
     if request.method == "POST":
         try:
-            # Extract contract data from form
-            installation_date = request.POST.get("installation_date")
-            monthly_charges = request.POST.get("monthly_charges")
-            billing_date = request.POST.get("billing_date")
-            renewal_date = request.POST.get("renewal_date")
+            # Extract sale data from form
+            purchase_date = request.POST.get("purchase_date")
+            if not purchase_date:
+                purchase_date = timezone.now().date()
+            else:
+                purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d").date()
+            charges = request.POST.get("charges")
+            payment_method = request.POST.get("payment_method")
+            payment_interval = request.POST.get("payment_interval", None)
 
             # Fetch client details
             email = request.POST.get("email")
-            client = Person.objects.filter(email=email, role="Client").first()
+            client = Person.objects.filter(
+                email=email, role="Client", business=request.user.business
+            ).first()
 
             if not client:
                 messages.error(request, "Client not found.")
+                raise ValueError("Client not found.")
 
             # Fetch salesperson details
             semail = request.POST.get("sale_email")
-            print(semail)
             salesperson = (
-                Person.objects.filter(email=semail).exclude(role="Client").first()
+                Person.objects.filter(email=semail)
+                .exclude(role="Client", business=request.user.business)
+                .first()
             )
 
             if not salesperson:
                 messages.error(request, "Salesperson not found.")
+                raise ValueError("Salesperson not found.")
 
-            # Fetch equipment details
+            # Fetch items details
             tag = request.POST.get("asset_tag_number")
-            equipment = Equipment.objects.filter(asset_tag_number=tag).first()
+            item = Item.objects.filter(
+                asset_tag_number=tag, business=request.user.business
+            ).first()
 
-            if not equipment:
-                messages.error(request, "Equipment not found.")
+            if not item:
+                messages.error(request, "Item not found.")
+                raise ValueError("Item not found.")
 
-            # Create and add a new contract
-            new_contract = Contract(
-                installation_date=datetime.strptime(
-                    installation_date, "%Y-%m-%d"
-                ).date(),
-                monthly_charges=monthly_charges,
-                billing_date=datetime.strptime(billing_date, "%Y-%m-%d").date(),
-                renewal_date=datetime.strptime(renewal_date, "%Y-%m-%d").date(),
+            # Calculate billing_date based on payment_interval
+            billing_date = None
+            if payment_method == "Recurring" and payment_interval != "Manual":
+                # billing_date = datetime.strptime(purchase_date, "%Y-%m-%d").date()
+                billing_date = purchase_date
+                if payment_interval == "Monthly":
+                    billing_date += timedelta(days=30)
+                elif payment_interval == "Quarterly":
+                    billing_date += timedelta(days=90)
+                elif payment_interval == "Half-Yearly":
+                    billing_date += timedelta(days=180)
+                elif payment_interval == "Yearly":
+                    billing_date += timedelta(days=365)
+
+            renewal_date = request.POST.get("renewal_date", None)
+            if payment_interval == "Manual":
+                if renewal_date:
+                    billing_date = datetime.strptime(renewal_date, "%Y-%m-%d").date()
+                else:
+                    messages.error(
+                        request, "Renewal date is required for manual payments."
+                    )
+                    raise ValueError("Renewal date is required for manual payments.")
+
+            # Create and add a new sale
+            new_sale = Sale(
+                purchase_date=purchase_date,
+                charges=charges,
+                payment_method=payment_method,
+                payment_interval=payment_interval
+                if payment_method == "Recurring"
+                else None,
+                billing_date=billing_date,
                 role=salesperson.role,
                 person=salesperson,
+                business=request.user.business,
             )
-            new_contract.save()
+            new_sale.save()
 
-            # Create and add a new entry in contract_equipments table
-            new_contract_equipment = ContractEquipment(
-                contract=new_contract, equipment=equipment, person=client
-            )
-            new_contract_equipment.save()
+            # Create and add a new entry in sale_items table
+            new_sale_item = SaleItem(sale=new_sale, item=item, person=client)
+            new_sale_item.save()
 
-            messages.success(request, "Contract created successfully!")
-            return redirect("add_contract")
+            messages.success(request, "Sale created successfully!")
+            return redirect("add_sale")
 
         except IntegrityError as e:
+            print(e)
             messages.error(
                 request,
                 "A database error occurred. Please try again.",
@@ -333,76 +515,50 @@ def add_contract(request):
         except ValueError as e:
             messages.error(
                 request,
-                "Invalid date format. Please check the provided information.",
+                "Please check the provided information.",
                 extra_tags="info",
             )
 
         except Exception as e:
+            print("Exception " + str(e))
             messages.error(
                 request, "Record not added. Please try again.", extra_tags="info"
             )
 
         # Render the form with existing data in case of an error
-        context = {"form_data": request.POST or None, "segment": "add_contract"}
-        return render(request, "pages/addcontract.html", context)
+        context = {"form_data": request.POST or None, "segment": "add_sale"}
+        return render(request, "pages/add_sale.html", context)
 
     # If GET request, render the form with empty context
-    return render(request, "pages/addcontract.html", {"segment": "add-contract"})
+    return render(request, "pages/add_sale.html", {"segment": "add-sale"})
 
 
 @login_required
-def search_user(request):
-    email = request.GET.get("email")
-    user = Person.objects.filter(email=email, role="Client").first()
-    if user:
-        return JsonResponse(
-            {
-                "success": True,
-                "full_name": f"{user.first_name} {user.last_name}",
-                "address": f"{user.street}, {user.city}, {user.state}, {user.country}"
-                if user.street
-                else "No address on file",
-                "gender": "Male"
-                if user.gender == "M"
-                else "Female"
-                if user.gender == "F"
-                else "Other",
-                "home_phone": user.home_phone_number
-                if user.home_phone_number
-                else "No phone number on file",
-                "business_phone": user.business_phone_number
-                if user.business_phone_number
-                else "No phone number on file",
-                "role": user.role,
-                "zipcode": user.zipcode if user.zipcode else "No zipcode on file",
-            }
-        )
-    else:
-        return JsonResponse({"success": False, "message": "User not found"})
-
-
-@csrf_exempt
-def find_equipment(request):
+def find_item(request):
     asset_tag_number = request.GET.get("asset_tag_number")
-    equipment = Equipment.objects.filter(asset_tag_number=asset_tag_number).first()
-    if equipment:
+    user_business = request.user.business  # Get the business of the logged-in user
+    base_queryset = Item.objects.filter(business=user_business)
+    item = base_queryset.filter(asset_tag_number=asset_tag_number).first()
+    if item:
         return JsonResponse(
             {
                 "success": True,
-                "equipment_name": equipment.equipment_name,
-                "serial_number": equipment.serial_number,
-                "install_date": equipment.install_date.strftime("%Y-%m-%d")
-                if equipment.install_date
+                "item_name": item.item_name,
+                "serial_number": item.serial_number,
+                "install_date": item.install_date.strftime("%Y-%m-%d")
+                if item.install_date
                 else "",
             }
         )
-    return JsonResponse({"success": False, "message": "Equipment not found"})
+    return JsonResponse({"success": False, "message": "Item not found"})
 
 
-@csrf_exempt
+@login_required
 def find_sales(request):
     email = request.GET.get("email")
-    sales_executive = Person.objects.exclude(role="Client").filter(email=email).first()
+    user_business = request.user.business  # Get the business of the logged-in user
+    base_queryset = Person.objects.filter(business=user_business)
+    sales_executive = base_queryset.exclude(role="Client").filter(email=email).first()
     if sales_executive:
         gender = (
             "Male"
@@ -433,10 +589,12 @@ def find_sales(request):
     return JsonResponse({"success": False, "message": "Sales executive not found"})
 
 
-@csrf_exempt
+@login_required
 def find_user(request):
     email = request.GET.get("email")
-    user = Person.objects.filter(role="Client", email=email).first()
+    user_business = request.user.business  # Get the business of the logged-in user
+    base_queryset = Person.objects.filter(business=user_business)
+    user = base_queryset.filter(role="Client", email=email).first()
     if user:
         gender = (
             "Male"
@@ -464,12 +622,54 @@ def find_user(request):
                 else "No phone number on file",
             }
         )
-    return JsonResponse({"success": False, "message": "User not found"})
+    return JsonResponse({"success": False, "message": "Client not found"})
+
+
+from django.db.models import Count
+
+
+@login_required
+@permission_required("home.view_business", raise_exception=True)
+def search_business(request):
+    search_term = (
+        request.POST.get("search_term", "").strip() if request.method == "POST" else ""
+    )
+
+    # Start the query from the Owner model
+    base_queryset = User.objects.filter(role=User.Role.OWNER).select_related("business")
+
+    if search_term:
+        owners = base_queryset.filter(
+            Q(first_name__icontains=search_term)
+            | Q(last_name__icontains=search_term)
+            | Q(email__icontains=search_term)
+            | Q(username__icontains=search_term)
+            | Q(
+                business__name__icontains=search_term
+            )  # Searches the related Business model's name field
+        ).annotate(
+            staff_count=Count(
+                "business__user", filter=Q(business__user__role=User.Role.STAFF)
+            )
+        )
+    else:
+        owners = base_queryset.annotate(
+            staff_count=Count(
+                "business__user", filter=Q(business__user__role=User.Role.STAFF)
+            )
+        )
+
+    context = {
+        "owners": owners,
+        "segment": "search-business",
+        "search_term": search_term,
+    }
+    return render(request, "pages/search_business.html", context)
 
 
 @login_required
 @permission_required("home.view_person", raise_exception=True)
-def search_user(request):
+def search_person(request):
     search_term = (
         request.POST.get("search_term", "").strip() if request.method == "POST" else ""
     )
@@ -498,87 +698,100 @@ def search_user(request):
 
     context = {
         "users": users,
-        "segment": "search-user",
+        "segment": "search-person",
         "search_term": search_term,  # Pass the search term back to the template
     }
-    return render(request, "pages/searchuser.html", context)
+    return render(request, "pages/search_person.html", context)
 
 
 @login_required
-@permission_required("home.view_equipment", raise_exception=True)
-def search_equipment(request):
+@permission_required("home.view_item", raise_exception=True)
+def search_item(request):
     search_term = (
         request.POST.get("search_term", "").strip() if request.method == "POST" else ""
     )
 
     user_business = request.user.business
-    base_queryset = Equipment.objects.filter(business=user_business)
+    base_queryset = Item.objects.filter(business=user_business)
 
     if search_term:
-        equipment_list = base_queryset.filter(
+        item_list = base_queryset.filter(
             Q(asset_tag_number__icontains=search_term)
-            | Q(equipment_name__icontains=search_term)
+            | Q(item_name__icontains=search_term)
             | Q(serial_number__icontains=search_term)
             | Q(install_date__icontains=search_term)
         )
     else:
-        equipment_list = base_queryset
+        item_list = base_queryset
 
     context = {
-        "equipment_list": equipment_list,
-        "segment": "search-equipment",
+        "item_list": item_list,
+        "segment": "search-item",
         "search_term": search_term,  # Pass the search term back to the template
     }
-    return render(request, "pages/searchequipment.html", context)
+    return render(request, "pages/search_item.html", context)
 
 
 @login_required
-@permission_required("home.view_contract", raise_exception=True)
-def search_contract(request):
+@permission_required("home.view_sale", raise_exception=True)
+def search_sale(request):
     search_term = (
         request.POST.get("search_term", "").strip() if request.method == "POST" else ""
     )
 
+    user_business = request.user.business
+    base_queryset = Sale.objects.filter(business=user_business)
+
     if search_term:
-        contracts = Contract.objects.filter(
+        sales = base_queryset.filter(
             Q(id__icontains=search_term)
-            | Q(installation_date__icontains=search_term)
+            | Q(purchase_date__icontains=search_term)
+            | Q(charges__icontains=search_term)
+            | Q(payment_method__icontains=search_term)
+            | Q(payment_interval__icontains=search_term)
             | Q(billing_date__icontains=search_term)
-            | Q(renewal_date__icontains=search_term)
-            | Q(monthly_charges__icontains=search_term)
-            | Q(contractequipment__person__first_name__icontains=search_term)
-            | Q(contractequipment__person__last_name__icontains=search_term)
-            | Q(contractequipment__person__email__icontains=search_term)
-            | Q(contractequipment__person__role__icontains=search_term)
-            | Q(contractequipment__equipment__asset_tag_number__icontains=search_term)
-            | Q(contractequipment__equipment__equipment_name__icontains=search_term)
-            | Q(contractequipment__equipment__serial_number__icontains=search_term)
+            | Q(saleitem__person__first_name__icontains=search_term)
+            | Q(saleitem__person__last_name__icontains=search_term)
+            | Q(saleitem__person__email__icontains=search_term)
+            | Q(saleitem__person__role__icontains=search_term)
+            | Q(saleitem__item__asset_tag_number__icontains=search_term)
+            | Q(saleitem__item__item_name__icontains=search_term)
+            | Q(saleitem__item__serial_number__icontains=search_term)
             | Q(person__first_name__icontains=search_term)
             | Q(person__last_name__icontains=search_term)  # Sales Executive details
             | Q(person__email__icontains=search_term)
             | Q(person__role__icontains=search_term)
         ).distinct()
     else:
-        contracts = Contract.objects.all()
+        sales = base_queryset
 
     context = {
-        "contracts": contracts,
-        "segment": "search-contract",
+        "sales": sales,
+        "segment": "search-sale",
         "search_term": search_term,  # Pass the search term back to the template
     }
 
-    return render(request, "pages/searchcontract.html", context)
+    return render(request, "pages/search_sale.html", context)
 
 
 @login_required
-@permission_required("home.delete_equipment", raise_exception=True)
+@permission_required("home.delete_item", raise_exception=True)
 @require_http_methods(["DELETE"])
-def delete_equipment(request, item_id):
+def delete_item(request, item_id):
     try:
-        equipment = Equipment.objects.get(pk=item_id)
-        equipment.delete()
+        item = Item.objects.get(pk=item_id)
+        # Check if the item's business matches the user's business
+        if item.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to delete this item.",
+                },
+                status=403,
+            )
+        item.delete()
         return JsonResponse({"success": True})
-    except Equipment.DoesNotExist:
+    except Item.DoesNotExist:
         return JsonResponse({"success": False}, status=404)
     except Exception as e:
         # Log the error
@@ -586,26 +799,27 @@ def delete_equipment(request, item_id):
 
 
 @login_required
-@permission_required("home.change_equipment", raise_exception=True)
-def edit_equipment(request, equipment_id):
-    equipment = get_object_or_404(Equipment, pk=equipment_id)
+@permission_required("home.change_item", raise_exception=True)
+def edit_item(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    # Check if the item's business matches the user's business
+    if item.business != request.user.business:
+        # messages.error(request, "item not found.")
+        return redirect("search_item")
+
     if request.method == "POST":
-        form = EquipmentForm(request.POST, instance=equipment)
+        form = ItemForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
-            messages.success(request, "Equipment updated successfully!")
-            return redirect("search_equipment")
+            messages.success(request, "Item updated successfully!")
+            return redirect("search_item")
         else:
             messages.error(request, "Please correct the errors below.")
     else:
-        form = EquipmentForm(instance=equipment)
+        form = ItemForm(instance=item)
 
-    context = {
-        "form": form,
-        "equipment": equipment,
-        "segment": "edit-equipment"
-    }
-    return render(request, "pages/edit_equipment.html", context)
+    context = {"form": form, "item": item, "segment": "edit-item"}
+    return render(request, "pages/edit_item.html", context)
 
 
 @login_required
@@ -614,6 +828,15 @@ def edit_equipment(request, equipment_id):
 def delete_person(request, person_id):
     try:
         person = Person.objects.get(pk=person_id)
+        # Check if the person's business matches the user's business
+        if person.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to delete this person.",
+                },
+                status=403,
+            )
         person.delete()
         return JsonResponse({"success": True})
     except Person.DoesNotExist:
@@ -627,34 +850,201 @@ def delete_person(request, person_id):
 @permission_required("home.change_person", raise_exception=True)
 def edit_person(request, person_id):
     person = get_object_or_404(Person, pk=person_id)
+    # Check if the person's business matches the user's business
+    if person.business != request.user.business:
+        # messages.error(request, "person not found.")
+        return redirect("search_person")
     if request.method == "POST":
         form = PersonForm(request.POST, instance=person)
         if form.is_valid():
             form.save()
             messages.success(request, "Person updated successfully!")
-            return redirect("search_user")
+            return redirect("search_person")
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = PersonForm(instance=person)
 
-    context = {
-        "form": form,
-        "person": person,
-        "segment": "edit-person"  # segment key
-    }
+    context = {"form": form, "person": person, "segment": "edit-person"}  # segment key
     return render(request, "pages/edit_person.html", context)
 
+
 @login_required
-@permission_required("home.delete_contract", raise_exception=True)
+@permission_required("home.delete_sale", raise_exception=True)
 @require_http_methods(["DELETE"])
-def delete_contract(request, contract_id):
+def delete_sale(request, sale_id):
     try:
-        contract = Contract.objects.get(pk=contract_id)
-        contract.delete()
+        sale = Sale.objects.get(pk=sale_id)
+        # Check if the sales's business matches the user's business
+        if sale.business != request.user.business:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "You do not have permission to delete this sale.",
+                },
+                status=403,
+            )
+        sale.delete()
         return JsonResponse({"success": True})
-    except Contract.DoesNotExist:
+    except Sale.DoesNotExist:
         return JsonResponse({"success": False}, status=404)
     except Exception as e:
         # Log the error
         return JsonResponse({"success": False}, status=500)
+
+
+@login_required
+@permission_required("home.change_item", raise_exception=True)
+def export_items(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="items.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        ["No.", "Name", "Asset Tag Number", "Serial Number", "Install Date"]
+    )
+
+    items = Item.objects.filter(business=request.user.business)
+    count = 1  # Initialize counter
+    for item in items:
+        writer.writerow(
+            [
+                count,
+                item.item_name,
+                item.asset_tag_number,
+                item.serial_number,
+                item.install_date,
+            ]
+        )
+        count += 1  # Increment counter
+
+    return response
+
+
+@login_required
+@permission_required("home.change_staff", raise_exception=True)
+def export_staff(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="staff.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        ["No.", "Username", "First Name", "Last Name", "Email", "Last Login"]
+    )
+
+    staff_members = User.objects.filter(business=request.user.business)
+    count = 1  # Initialize counter
+    for staff in staff_members:
+        writer.writerow(
+            [
+                count,
+                staff.username,
+                staff.first_name,
+                staff.last_name,
+                staff.email,
+                staff.last_login if staff.last_login else "Not logged in yet",
+            ]
+        )
+        count += 1  # Increment counter
+
+    return response
+
+
+@login_required
+@permission_required("home.change_person", raise_exception=True)
+def export_person(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="persons.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "ID",
+            "First Name",
+            "Last Name",
+            "Gender",
+            "Email",
+            "Role",
+            "Street",
+            "City",
+            "State",
+            "Zipcode",
+            "Country",
+            "Home Phone Number",
+            "Business Phone Number",
+        ]
+    )
+
+    persons = Person.objects.filter(business=request.user.business)
+    count = 1  # Initialize counter
+    for person in persons:
+        writer.writerow(
+            [
+                count,
+                person.first_name,
+                person.last_name,
+                person.get_gender_display(),  # Use get_FOO_display() to get the readable value of ChoiceField
+                person.email,
+                person.get_role_display(),  # Use get_FOO_display() for readable role
+                person.street,
+                person.city,
+                person.state,
+                person.zipcode,
+                person.country,
+                person.home_phone_number,
+                person.business_phone_number,
+            ]
+        )
+        count += 1  # Increment counter
+
+    return response
+
+
+@login_required
+@permission_required("home.change_sale", raise_exception=True)
+def export_sale(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="sales.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "No.",
+            "Purchase Date",
+            "Charges",
+            "Billing Date",
+            "Payment Method",
+            "Client",
+            "Email",
+            "Salesperson",
+            "Role",
+            "Item",
+        ]
+    )
+
+    sales = Sale.objects.filter(business=request.user.business)
+    count = 1  # Initialize counter
+    for sale in sales:
+        # Assuming each sale has only one SaleItem, adjust as needed
+        sale_item = SaleItem.objects.filter(sale=sale).first()
+
+        writer.writerow(
+            [
+                count,
+                sale.purchase_date,
+                sale.charges,
+                sale.billing_date,
+                sale.payment_method
+                if sale.payment_method == "One-time"
+                or sale.payment_method == "One-Time"
+                else f"{sale.payment_method} - {sale.payment_interval}",
+                sale_item.person.get_full_name() if sale_item else "",
+                sale_item.person.email,
+                sale.person.get_full_name(),
+                sale.person.role,
+                sale_item.item.item_name if sale_item else "",
+            ]
+        )
+        count += 1  # Increment counter
+
+    return response

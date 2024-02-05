@@ -1,11 +1,11 @@
 from django import forms
-from .models import Equipment, Person
+from .models import Item, Person
 
 
-class EquipmentForm(forms.ModelForm):
+class ItemForm(forms.ModelForm):
     class Meta:
-        model = Equipment
-        fields = ["asset_tag_number", "equipment_name", "serial_number", "install_date"]
+        model = Item
+        fields = ["asset_tag_number", "item_name", "serial_number", "install_date"]
         widgets = {
             "install_date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         }

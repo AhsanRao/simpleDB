@@ -5,9 +5,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # Chart and Maps
-    path("charts/morris-chart/", views.morris_chart, name="morris_chart"),
-    path("maps/google-maps/", views.google_maps, name="google_maps"),
     path("report", views.generate_report, name="generate_report"),
     # Authentication
     path("accounts/register/", views.register, name="register"),
@@ -60,6 +57,4 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     #
-    path("profile/", views.profile, name="profile"),
-    path("sample-page/", views.sample_page, name="sample_page"),
 ]
