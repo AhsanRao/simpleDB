@@ -8,9 +8,20 @@
 build/
 env
 /staticfiles/
-
-#src
 *.sqlite*
-
 .env
+
+# Ignore development settings
+*local.py
+
+# Ignore environment-specific files
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignore pipenv files
+Pipfile
+Pipfile.lock
+
 core/settings.py
