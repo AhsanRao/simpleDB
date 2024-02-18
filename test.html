@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Toggle Sections</title>
+        <style>
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .container {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+    }
+    .section {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        text-align: center;
+        transition: transform 1s ease;
+    }
+    #section2 {
+        top: calc(50% + 100%);
+        transition: top 1s ease;
+    }
+    #toggle-label {
+        cursor: pointer;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    #toggle {
+        display: none;
+    }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div id="section1" class="section">
+                <h2>Section 1</h2>
+                <p>This is the content of section 1.</p>
+                <p>This is the content of section 1.</p>
+            </div>
+            <div id="section2" class="section">
+                <h2>Section 2</h2>
+                <p>This is the content of section 2.</p>
+                <p>This is the content of section 2.</p>
+            </div>
+            <label id="toggle-label" for="toggle">Toggle Sections</label>
+            <input type="checkbox" id="toggle">
+        </div>
+        <script>
+    const toggle = document.getElementById('toggle');
+    const section1 = document.getElementById('section1');
+    const section2 = document.getElementById('section2');
+
+    toggle.addEventListener('change', function() {
+        if (toggle.checked) {
+            section1.style.transform = 'translate(-50%, -150%)';
+            setTimeout(function() {
+                section2.style.top = '50%';
+            }, 100);
+        } else {
+            section1.style.transform = 'translate(-50%, -50%)';
+            section2.style.top = 'calc(50% + 100%)';
+        }
+    });
+        </script>
+    </body>
+</html>

@@ -74,6 +74,40 @@
     </style>
 {% endblock extrastyle %}
 {% block content %}
+    {% block comment %}
+        <div class="auth-wrapper1">
+            <div class="auth-content1">
+                <!-- Graphic Section -->
+                <div class="graphic-section">
+                    <!-- Your graphic content goes here -->
+                    <div class="typewriter-text">
+                        <h2 class="typewriter" id="typewriter"></h2>
+                    </div>
+                    <!-- Include decorative elements like images or illustrations -->
+                </div>
+                <!-- Form Section -->
+                <div class="form-section">
+                    <div method="post" class="card-body text-center">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <i class="feather icon-user-plus auth-icon" style="font-size:xx-large;"></i>
+                        </div>
+                        <h3 class="mb-4">Sign up</h3>
+                        <!-- Link for registering as a business -->
+                        <a href="{% url 'register-owner' %}"
+                           class="btn btn-primary btn-block mb-2 text-white">Register as Business Owner</a>
+                        <!-- Link for joining a business -->
+                        <a href="{% url 'register-staff' %}"
+                           class="btn btn-success btn-block mb-2 text-white">Register as Staff</a>
+                        <br>
+                        <p class="mb-0 text-muted">
+                            Already have an account? <a href="{% url 'login' %}">Log in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock comment %}
     <div class="auth-wrapper">
         <div class="auth-content">
             <!-- <div class="auth-bg">

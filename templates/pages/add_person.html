@@ -104,6 +104,8 @@
                                         <option value="EXEC" {% if form.role.value == 'EXEC' %}selected{% endif %}>Executive</option>
                                         <option value="LEGAL" {% if form.role.value == 'LEGAL' %}selected{% endif %}>Legal</option>
                                         <option value="ACCT" {% if form.role.value == 'ACCT' %}selected{% endif %}>Accountant</option>
+                                        <option value="STAFF" {% if form.role.value == 'STAFF' %}selected{% endif %}>Staff</option>
+    
                                     </select>
                                     {% for error in form.role.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
                                 </div>

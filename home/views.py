@@ -410,7 +410,6 @@ def add_item(request):
 
 from datetime import datetime
 
-
 @login_required
 @permission_required("home.add_sale", raise_exception=True)
 def add_sale(request):
@@ -498,7 +497,7 @@ def add_sale(request):
             new_sale.save()
 
             # Create and add a new entry in sale_items table
-            new_sale_item = SaleItem(sale=new_sale, item=item, person=client)
+            new_sale_item = SaleItem(sale=new_sale, item=item, person=client, business=request.user.business)
             new_sale_item.save()
 
             messages.success(request, "Sale created successfully!")
@@ -1048,3 +1047,38 @@ def export_sale(request):
         count += 1  # Increment counter
 
     return response
+
+
+@login_required(login_url="/accounts/login/")
+def generate_report(request):
+    # Get the logged-in user's business ID
+    user_business_id = request.user.business_id
+
+    # Filter the base queryset for sales by the user's business
+    base_queryset = Sale.objects.filter(business_id=user_business_id)
+
+    # Query to get top 5 sold items, filtered by the user's business
+    top_items = SaleItem.objects.filter(sale__in=base_queryset)\
+        .values('item__item_name')\
+        .annotate(total_sold=Count('item'))\
+        .order_by('-total_sold')[:5]
+
+    # Preparing data for the top sold items chart
+    top_items = [{'label': item['item__item_name'], 'value': item['total_sold']} for item in top_items]
+
+    # Query to get top 5 salespersons based on the number of sale items
+    top_salespersons = base_queryset\
+        .values('person__first_name', 'person__last_name')\
+        .annotate(total_sales=Count('saleitem'))\
+        .order_by('-total_sales')[:5]
+
+    # Preparing data for the top salespersons chart
+    salespersons_data = [{'label': f"{person['person__first_name']} {person['person__last_name']}", 'value': person['total_sales']} for person in top_salespersons]
+
+    context = {
+        "segment": "generate-report",
+        'top_items': top_items,
+        'salespersons_data': salespersons_data
+    }
+
+    return render(request, "pages/chart-morris.html", context)

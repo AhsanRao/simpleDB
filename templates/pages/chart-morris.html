@@ -74,10 +74,20 @@
         <div class="col-xl-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Donut Chart</h5>
+                    <h5>Top Sold Items</h5>
                 </div>
                 <div class="card-block">
-                    <div id="morris-donut-chart" style="height:300px"></div>
+                    <div id="morris-donut-chart-item" style="height:300px"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Sales Person</h5>
+                </div>
+                <div class="card-block">
+                    <div id="morris-donut-chart-saleperson" style="height:300px"></div>
                 </div>
             </div>
         </div>
@@ -90,4 +100,35 @@
     <script src="{% static 'assets/plugins/chart-morris/js/raphael.min.js' %}"></script>
     <script src="{% static 'assets/plugins/chart-morris/js/morris.min.js' %}"></script>
     <script src="{% static 'assets/js/pages/chart-morris-custom.js' %}"></script>
+    <script>
+        // Initialize the donut chart
+        Morris.Donut({
+            element: 'morris-donut-chart-item',
+            data: {{ top_items|safe }},
+            resize: true,
+            colors: [
+            '#1de9b6',
+            '#A389D4',
+            '#04a9f5',
+            '#1dc4e9',
+        ],
+        formatter: function(x) {
+            return "val : " + x
+        }
+        });
+        Morris.Donut({
+            element: 'morris-donut-chart-saleperson',
+            data: {{ salespersons_data|safe }},
+            resize: true,
+            colors: [
+            '#04a9f5',
+            '#1dc4e9',
+            '#1de9b6',
+            '#A389D4',
+        ],
+        formatter: function(x) {
+            return "val : " + x
+        }
+        });
+    </script>
 {% endblock extra_js %}

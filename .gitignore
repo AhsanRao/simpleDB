@@ -24,4 +24,5 @@ env
 Pipfile
 Pipfile.lock
 
+home/migrations/
 core/settings.py

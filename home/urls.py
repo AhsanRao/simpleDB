@@ -43,4 +43,7 @@ urlpatterns = [
     path("export-person/", views.export_person, name="export_person"),
     path("export-sale/", views.export_sale, name="export_sale"),
     path("search-business/", views.search_business, name="search_business"),
+
+    path("report/", views.generate_report, name="generate_report"),
+
 ]

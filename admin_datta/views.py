@@ -26,12 +26,6 @@ def index(request):
     return render(request, "pages/index.html", context)
 
 
-@login_required(login_url="/accounts/login/")
-def generate_report(request):
-    context = {"segment": "generate-report"}
-    return render(request, "pages/chart-morris.html", context)
-
-
 class OwnerRegistrationView(CreateView):
     template_name = "accounts/auth-signup.html"
     form_class = OwnerRegistrationForm

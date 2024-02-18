@@ -16,6 +16,7 @@ class Person(models.Model):
         EXECUTIVE = "EXEC", "Executive"
         LEGAL = "LEGAL", "Legal"
         ACCOUNTANT = "ACCT", "Accountant"
+        STAFF = "STAFF", "Staff"
 
     id = models.AutoField(primary_key=True)
     # Person fields
@@ -175,6 +176,9 @@ class SaleItem(models.Model):
     item = models.ForeignKey("Item", on_delete=models.CASCADE)
     person = models.ForeignKey(
         "Person", on_delete=models.CASCADE, null=True, blank=True
+    )
+    business = models.ForeignKey(
+        "Business", on_delete=models.CASCADE, null=True, blank=True
     )
 
     def __int__(self):

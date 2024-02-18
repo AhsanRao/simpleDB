@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("report", views.generate_report, name="generate_report"),
     # Authentication
     path("accounts/register/", views.register, name="register"),
     path(

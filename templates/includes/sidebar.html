@@ -143,23 +143,31 @@
                                 <span class="pcoded-mtext">Add Business</span>
                             </a>
                         </li>
+                        <!-- Groups Page Link -->
+                        <li class="nav-item {% if 'add_group' in segment %}active{% endif %}">
+                            <a href="{% url 'admin:auth_group_changelist' %}" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-square"></i></span>
+                                <span class="pcoded-mtext">Auth Groups</span>
+                            </a>
+                        </li>
                     {% endif %}
                     {% if request.user.is_authenticated and not request.user.is_superuser and request.user.role == 'OWNER' %}
                         <li data-username="Manage Staff"
                             class="nav-item {% if 'staff' in segment %}active{% endif %}">
                             <a href="{% url 'search_staff' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">Manage Staff</span></a>
                         </li>
-                        <li data-username="Profile Page"
+                        <li data-username="Generate Report"
                             class="nav-item {% if 'report' in segment %}active{% endif %}">
                             <a href="{% url 'generate_report' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Generate Report</span></a>
                         </li>
                     {% endif %}
+                    {% comment %}
                     {% if request.user.is_authenticated and not request.user.is_superuser %}
-                        <li data-username="Profile Page"
-                            class="nav-item {% if 'profile' in segment %}active{% endif %}">
+                        <li data-username="Profile Page" class="nav-item {% if 'profile' in segment %}active{% endif %}">
                             <a href="{% url 'profile' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">Profile</span></a>
                         </li>
                     {% endif %}
+                    {% endcomment %}
                     <li data-username="Disabled Menu" class="nav-item">
                         <a href="{% url 'logout' %}" class="nav-link">
                             <span class="pcoded-micon"><i class="feather icon-power"></i></span><span class="pcoded-mtext">Logout</span>
