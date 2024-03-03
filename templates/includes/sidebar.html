@@ -73,6 +73,7 @@
                         {% endfor %}
                     {% endif %}
                     {% if request.user.is_authenticated and not request.user.is_superuser and not request.user.role == "ADMIN" %}
+                        
                         <!-- Search Navigation Item -->
                         <li class="nav-item pcoded-hasmenu {% if 'search-person' in segment or 'search-item' in segment or 'search-sale' in segment %}active{% endif %}">
                             <a href="javascript:" class="nav-link">
@@ -129,6 +130,13 @@
                         </li>
                     {% endif %}
                     {% if request.user.is_authenticated and not request.user.is_superuser and request.user.role == 'ADMIN' %}
+                        <!-- Auth Token -->
+                        <li class="nav-item {% if 'auth-token' in segment %}active{% endif %}">
+                            <a href="admin/authtoken/tokenproxy/" class="nav-link">
+                                <span class="pcoded-micon"><i class="feather icon-lock"></i></span>
+                                <span class="pcoded-mtext">Auth Token</span>
+                            </a>
+                        </li>    
                         <!-- Search Business Page Link -->
                         <li class="nav-item {% if 'search-business' in segment %}active{% endif %}">
                             <a href="{% url 'search_business' %}" class="nav-link">
